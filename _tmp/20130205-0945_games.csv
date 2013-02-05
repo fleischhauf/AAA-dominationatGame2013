@@ -1,0 +1,5 @@
+red_file,blue_file,score,score_red,score_blue,steps,ammo_red,ammo_blue
+domination/agent.py,domination/agent.py,0.0,0,100,96,5,5
+domination/agent.py,domination/agent.py,1.0,100,0,58,4,2
+domination/agent.py,domination/agent.py,1.0,100,0,129,8,3
+domination/agent.py,domination/agent.py,1.0,100,0,101,8,2
