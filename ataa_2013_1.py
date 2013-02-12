@@ -25,13 +25,14 @@ w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
 class Tournament1(run.Scenario):
     GENERATOR = None
     FIELD     = core.Field.from_string(FIELD)
-    SETTINGS  = core.Settings(ammo_amount=2, 
-                              spawn_time=10, 
-                              ammo_rate=14, 
-                              max_see=70, 
+    SETTINGS  = core.Settings(ammo_amount=2,
+                              spawn_time=10,
+                              ammo_rate=14,
+                              max_see=70,
                               max_turn=math.pi/4,
                               max_score=100)
 
 
 #Tournament1.one_on_one(red="domination/agent.py", blue="domination/agent.py", output_folder='_tmp')
 Tournament1.test(red="domination/agent.py", blue="domination/agent.py")
+#Test Change!
