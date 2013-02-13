@@ -21,7 +21,7 @@ w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w
 w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w
 w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
 """
-#fdvgd
+
 class Tournament1(run.Scenario):
     GENERATOR = None
     FIELD     = core.Field.from_string(FIELD)
@@ -34,4 +34,4 @@ class Tournament1(run.Scenario):
 
 
 #Tournament1.one_on_one(red="domination/agent.py", blue="domination/agent.py", output_folder='_tmp')
-Tournament1.test(red="domination/agent_controllable.py", blue="domination/agent.py")
+Tournament1.test(red="domination/agent.py", blue="domination/agent.py")
