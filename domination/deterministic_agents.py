@@ -17,6 +17,20 @@ class Agent(object):
         self.goal = None
         self.callsign = '%s-%d'% (('BLU' if team == TEAM_BLUE else 'RED'), id)
         
+        
+        #role for agent:
+        '''
+        x-Ammo
+        O-controlpoint
+        
+          5-O-4
+          |   |
+         0x  3x
+          |   |
+          1-0-2
+        '''
+        self.role = 0
+        
         # Read the binary blob, we're not using it though
         if blob is not None:
             print "Agent %s received binary blob of %s" % (
@@ -24,10 +38,22 @@ class Agent(object):
             # Reset the file so other agents can read it.
             blob.seek(0) 
         
+        
+        
         # Recommended way to share variables between agents.
         if id == 0:
             self.all_agents = self.__class__.all_agents = []
         self.all_agents.append(self)
+        
+        
+        #assign init roles:
+        if(self.id == 0):
+            self.role = 0
+        if(self.id == 1):
+            self.role = 3
+        if(self.id == 2):
+            self.role = 4
+            
     
     def observe(self, observation):
         """ Each agent is passed an observation using this function,
@@ -46,10 +72,56 @@ class Agent(object):
         """ This function is called every step and should
             return a tuple in the form: (turn, speed, shoot)
         """
-        obs = self.observation
+        turn = 0
+        speed = 0
+        shoot = False
+        if(self.id == 0):
+            print("new agent = ",self.id,"role :",self.role)
+        
+
+        obs = self.observation     
+        #print(self.role)
+        
+        
+        
+        #set goals according to roles:
+        
+        if(self.role == 0): #left ammo (152,136)
+            self.goal = (152,151)
+            #up
+            if(point_dist((152,151), obs.loc) < self.settings.tilesize-3):
+                self.goal = (152,111)
+            #down
+            if(point_dist((152,111), obs.loc) < self.settings.tilesize-3):
+                self.goal = (152,151)
+            
+        if(self.role == 3): #right ammo (312,136)
+            self.goal = (312,151)
+            #up
+            if(point_dist((312,151), obs.loc) < self.settings.tilesize-3):
+                self.goal = (312,111)
+            #down
+            if(point_dist((312,111), obs.loc) < self.settings.tilesize-3):
+                self.goal = (312,151)
+        if(self.role == 1): #bot cp
+            self.goal = (248, 216)
+        if(self.role == 4):#top cp
+            self.goal = (220, 56)
+            
+        if(self.role == 2): #go to right ammo
+            self.goal = (312,136)
+        if(self.role == 5): #go to left ammo
+            self.goal = (152,136)
+            
+            
+        #check if there:
+
+        
+        
+
         # Check if agent reached goal.
-        if self.goal is not None and point_dist(self.goal, obs.loc) < self.settings.tilesize:
-            self.goal = None
+        #if self.goal is not None and point_dist(self.goal, obs.loc) < self.settings.tilesize:
+        #    self.goal = None
             
         # Walk to ammo
         ammopacks = filter(lambda x: x[2] == "Ammo", obs.objects)
@@ -62,15 +134,12 @@ class Agent(object):
             self.goal = self.observation.clicked[0][0:2]
         
         # Walk to random CP
-        if self.goal is None:
-            self.goal = obs.cps[random.randint(0,len(obs.cps)-1)][0:2]
+        #if self.goal is None:
+        #    self.goal = obs.cps[random.randint(0,len(obs.cps)-1)][0:2]
         
         # Shoot enemies
         shoot = False
-        if (obs.ammo > 0 and 
-            obs.foes and 
-            point_dist(obs.foes[0][0:2], obs.loc) < self.settings.max_range and
-            not line_intersects_grid(obs.loc, obs.foes[0][0:2], self.grid, self.settings.tilesize)):
+        if (obs.ammo > 0 and obs.foes and point_dist(obs.foes[0][0:2], obs.loc) < self.settings.max_range and not line_intersects_grid(obs.loc, obs.foes[0][0:2], self.grid, self.settings.tilesize)):
             self.goal = obs.foes[0][0:2]
             shoot = True
             
@@ -98,6 +167,7 @@ class Agent(object):
             turn = math.pi/4
             speed = 0
         '''
+        '''
         if(self.id == 0):
             self.goal = (312,136)
         if(self.id == 1):
@@ -110,26 +180,48 @@ class Agent(object):
                 self.goal = obs.cps[0][0:2]
             elif(obs.cps[1][2] != 1):
                 self.goal = obs.cps[1][0:2]
-            '''
+        '''
+        '''
             if(point_dist((216, 56), obs.loc) < (self.settings.tilesize)):
                 self.goal = (248, 216)
             if(point_dist((248, 216), obs.loc) < (self.settings.tilesize+20)):
                 self.goal = (216, 56)
-            '''
+        '''
         turn = math.pi/4
         speed = 0
+        #print("178",self.goal," ",obs.loc)
+        if (not point_dist(self.goal, obs.loc) < self.settings.tilesize):
+            #goto goal!
         
-        
-        path = find_path(obs.loc, self.goal, self.mesh, self.grid, self.settings.tilesize)
-        
-        if(self.id == 0 and not point_dist(self.goal, obs.loc) < self.settings.tilesize):
+            path = find_path(obs.loc, self.goal, self.mesh, self.grid, self.settings.tilesize)
+            #print(self.id,"i keep movin movin movin")
             dx = path[0][0] - obs.loc[0]
             dy = path[0][1] - obs.loc[1]
             turn = angle_fix(math.atan2(dy, dx) - obs.angle)
             if turn > self.settings.max_turn or turn < -self.settings.max_turn:
                 shoot = False
             speed = (dx**2 + dy**2)**0.5
+            
+            
+        else: #reached whatever goal it was:
+            if(self.id == 0):
+                print(self.id,"change!")
+            if(self.role == 1 or self.role == 4):#reached the cp
+                self.role += 1
+            elif(self.role == 5):#clap with other agent
+                for i in range(len(self.all_agents)):
+                    if(self.all_agents[i].role == 0): #change others agants role !
+                        self.all_agents[i].role = 1
+                self.role = 0
+                
+            elif(self.role == 2): #clap with other agent
+                for i in range(len(self.all_agents)):
+                    if(self.all_agents[i].role == 3):
+                        self.all_agents[i].role = 4
+                        break
+                self.role = 3
         
+        '''
         if(self.id == 1 and not point_dist(self.goal, obs.loc) < self.settings.tilesize):
             dx = path[0][0] - obs.loc[0]
             dy = path[0][1] - obs.loc[1]
@@ -137,8 +229,8 @@ class Agent(object):
             if turn > self.settings.max_turn or turn < -self.settings.max_turn:
                 shoot = False
             speed = (dx**2 + dy**2)**0.5
-        
-        
+        '''
+        '''
         if(self.id == 2 and not point_dist(self.goal, obs.loc) < self.settings.tilesize):
             dx = path[0][0] - obs.loc[0]
             dy = path[0][1] - obs.loc[1]
@@ -146,13 +238,14 @@ class Agent(object):
             if turn > self.settings.max_turn or turn < -self.settings.max_turn:
                 shoot = False
             speed = (dx**2 + dy**2)**0.5
-        
+        '''
         
         #if(self.id = 0 and not obs.loc == self.goal):
         #    pass
-
-        
-        #print(turn,speed,self.id)
+    
+            
+        #if(self.id == 0):
+        #    print(turn,speed,self.id)
         return (turn,speed,shoot)
         
     def debug(self, surface):
@@ -180,3 +273,4 @@ class Agent(object):
         """
         pass
         
+
