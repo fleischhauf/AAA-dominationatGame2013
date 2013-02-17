@@ -161,8 +161,10 @@ class Agent(object):
             turn = angle_fix(math.atan2(dy, dx) - obs.angle)
             if turn > self.settings.max_turn or turn < -self.settings.max_turn:
                 shoot = False
-            if(not shoot):
+            if(not shoot and (dx**2 + dy**2) > self.settings.max_speed):
                 speed = (dx**2 + dy**2)**0.5
+            else:
+                speed = 0
             
             
         else: #reached whatever goal it was:
