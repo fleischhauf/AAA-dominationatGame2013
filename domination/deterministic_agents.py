@@ -48,11 +48,14 @@ class Agent(object):
         
         #assign init roles:
         if(self.id == 0):
+            #self.role = 1
             self.role = 0
         if(self.id == 1):
-            self.role = 3
+            #self.role = 3
+            self.role = 1
         if(self.id == 2):
-            self.role = 4
+            #self.role = 4
+            self.role = 2
             
     
     def observe(self, observation):
@@ -75,9 +78,7 @@ class Agent(object):
         turn = 0
         speed = 0
         shoot = False
-        if(self.id == 0):
-            print("new agent = ",self.id,"role :",self.role)
-        
+
 
         obs = self.observation     
         #print(self.role)
@@ -87,22 +88,25 @@ class Agent(object):
         #set goals according to roles:
         
         if(self.role == 0): #left ammo (152,136)
-            self.goal = (152,151)
+            self.goal = (152,136)#(152,151)
+            '''
             #up
             if(point_dist((152,151), obs.loc) < self.settings.tilesize-3):
                 self.goal = (152,111)
             #down
             if(point_dist((152,111), obs.loc) < self.settings.tilesize-3):
                 self.goal = (152,151)
-            
+            '''
         if(self.role == 3): #right ammo (312,136)
-            self.goal = (312,151)
+            self.goal = (312,136)#(312,151)
+            '''
             #up
             if(point_dist((312,151), obs.loc) < self.settings.tilesize-3):
                 self.goal = (312,111)
             #down
             if(point_dist((312,111), obs.loc) < self.settings.tilesize-3):
                 self.goal = (312,151)
+            '''
         if(self.role == 1): #bot cp
             self.goal = (248, 216)
         if(self.role == 4):#top cp
@@ -144,52 +148,9 @@ class Agent(object):
             shoot = True
             
 
-        # Compute path, angle and drive
-        
-        '''
-        if(self.id == 0):
-            #if(not obs.loc == self.goal):
-            path = find_path(obs.loc, self.goal, self.mesh, self.grid, self.settings.tilesize)
-            print(obs.loc,self.goal)
-            #else:
-            #    pass
-        else:
-            path = None
-        
-        if path:
-            dx = path[0][0] - obs.loc[0]
-            dy = path[0][1] - obs.loc[1]
-            turn = angle_fix(math.atan2(dy, dx) - obs.angle)
-            if turn > self.settings.max_turn or turn < -self.settings.max_turn:
-                shoot = False
-            speed = (dx**2 + dy**2)**0.5
-        else:
-            turn = math.pi/4
-            speed = 0
-        '''
-        '''
-        if(self.id == 0):
-            self.goal = (312,136)
-        if(self.id == 1):
-            self.goal = (152,136)
-        
-        if(self.id == 2):
-            #print(obs.loc,self.goal)
-            self.goal = (216, 56)
-            if(obs.cps[0][2] != 1): #TODO: change to greater than zero for red team !
-                self.goal = obs.cps[0][0:2]
-            elif(obs.cps[1][2] != 1):
-                self.goal = obs.cps[1][0:2]
-        '''
-        '''
-            if(point_dist((216, 56), obs.loc) < (self.settings.tilesize)):
-                self.goal = (248, 216)
-            if(point_dist((248, 216), obs.loc) < (self.settings.tilesize+20)):
-                self.goal = (216, 56)
-        '''
+
         turn = math.pi/4
         speed = 0
-        #print("178",self.goal," ",obs.loc)
         if (not point_dist(self.goal, obs.loc) < self.settings.tilesize):
             #goto goal!
         
@@ -200,12 +161,17 @@ class Agent(object):
             turn = angle_fix(math.atan2(dy, dx) - obs.angle)
             if turn > self.settings.max_turn or turn < -self.settings.max_turn:
                 shoot = False
-            speed = (dx**2 + dy**2)**0.5
+            if(not shoot):
+                speed = (dx**2 + dy**2)**0.5
             
             
         else: #reached whatever goal it was:
-            if(self.id == 0):
-                print(self.id,"change!")
+            #just circle
+            if(self.role < 5 and self.role >= 0):
+                self.role += 1
+            else:
+                self.role = 0
+            '''
             if(self.role == 1 or self.role == 4):#reached the cp
                 self.role += 1
             elif(self.role == 5):#clap with other agent
@@ -220,7 +186,7 @@ class Agent(object):
                         self.all_agents[i].role = 4
                         break
                 self.role = 3
-        
+            '''
         '''
         if(self.id == 1 and not point_dist(self.goal, obs.loc) < self.settings.tilesize):
             dx = path[0][0] - obs.loc[0]
