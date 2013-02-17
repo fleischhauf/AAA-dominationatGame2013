@@ -9,7 +9,6 @@ class Agent(object):
             Note that the properties pertaining to the game field might not be
             given for each game.
         """
-	print "initialized!"
         self.id = id
         self.team = team
         self.mesh = nav_mesh
@@ -47,7 +46,6 @@ class Agent(object):
         """ This function is called every step and should
             return a tuple in the form: (turn, speed, shoot)
         """
-
         obs = self.observation
         # Check if agent reached goal.
         if self.goal is not None and point_dist(self.goal, obs.loc) < self.settings.tilesize:
@@ -78,8 +76,6 @@ class Agent(object):
 
         # Compute path, angle and drive
         path = find_path(obs.loc, self.goal, self.mesh, self.grid, self.settings.tilesize)
-	print("penis")
-	print(obs.loc)
         if path:
             dx = path[0][0] - obs.loc[0]
             dy = path[0][1] - obs.loc[1]
@@ -90,7 +86,8 @@ class Agent(object):
         else:
             turn = 0
             speed = 0
-        
+        #turn = 0
+        #speed = 0
         return (turn,speed,shoot)
         
     def debug(self, surface):
@@ -102,24 +99,13 @@ class Agent(object):
             active, and it will only be called for the active team.
         """
         import pygame
-	if(self.id == 2):
-		if not pygame.font: print 'Warning, fonts disabled'
-		font = pygame.font.Font(None, 36)
-		obsloc = self.observation.loc
-		text = font.render("test:"+str(self.id)+" "+str(obsloc[0])+" "+str(obsloc[1]), 1, (10, 10, 10))
-
-		surface.blit(text, (72, 113))
-		pygame.display.flip()
-	
-	# First agent clears the screen
+        # First agent clears the screen
         if self.id == 0:
             surface.fill((0,0,0,0))
         # Selected agents draw their info
         if self.selected:
             if self.goal is not None:
                 pygame.draw.line(surface,(0,0,0),self.observation.loc, self.goal)
-
-
         
     def finalize(self, interrupted=False):
         """ This function is called after the game ends, 
