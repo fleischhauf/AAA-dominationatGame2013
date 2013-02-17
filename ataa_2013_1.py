@@ -25,13 +25,9 @@ w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
 class Tournament1(run.Scenario):
     GENERATOR = None
     FIELD     = core.Field.from_string(FIELD)
-    SETTINGS  = core.Settings(ammo_amount=2,
-                              spawn_time=10,
-                              ammo_rate=14,
-                              max_see=70,
-                              max_turn=math.pi/4,
-                              max_score=100)
+    #SETTINGS  = core.Settings(ammo_amount=2, spawn_time=10, ammo_rate=14, max_see=70, max_turn=math.pi/4, max_score=10000)
+    SETTINGS = core.Settings(think_time=0.0625, ammo_rate=9, ammo_amount=1, max_score=100, max_see=70)
 
 
 #Tournament1.one_on_one(red="domination/agent.py", blue="domination/agent.py", output_folder='_tmp')
-Tournament1.test(red="domination/agent.py", blue="domination/agent.py")
+Tournament1.test(red="domination/deterministic_agents.py", blue="domination/agent.py")

@@ -35,12 +35,18 @@ if(self.id == 1):
 '''
 # Make it a short game
 #settings = core.Settings(max_steps=1000)
-settings = core.Settings(max_steps=10000,ammo_amount=2,spawn_time=10,ammo_rate=14,max_see=70,max_turn=math.pi/4,max_score=100000)
+#These are the oficial settings
+settings = core.Settings(think_time=0.0625, ammo_rate=9, ammo_amount=1, max_score=100, max_see=70)
+#settings = core.Settings(max_steps=10000,ammo_amount=2,spawn_time=10,ammo_rate=14,max_see=70,max_turn=math.pi/4,max_score=100000)
 FI = core.Field.from_string(FIELD)
 # Initialize a game
 #game = core.Game('domination/agent.py', 'domination/functiontest.py',
+#for i in range(1, 10):
 game = core.Game('domination/agent.py', 'domination/deterministic_agents.py',
-    record=True, rendered=True, settings=settings,field=FI)
+record=True, rendered=False, settings=settings, field=FI)
+game.run()
+
+    
 #ammo_amount=2,spawn_time=10,ammo_rate=14,max_see=70,max_turn=math.pi/4,max_score=100
 # Will run the entire game.
-game.run()
+
