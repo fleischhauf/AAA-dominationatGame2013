@@ -119,6 +119,7 @@ class Agent(object):
             
         if(self.role == 6): #go to left ammo
             self.goal = (320,250)
+            print a
         if(self.role == 7): #go to left ammo
             self.goal = (152,136)
             
