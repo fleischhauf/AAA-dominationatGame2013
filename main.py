@@ -25,7 +25,7 @@ w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
 if(self.id == 0):
     self.goal = (152,136)
 '''
-'''            
+'''
 if(self.id == 0):
     left ammo = (152,136)
 if(self.id == 1):
@@ -49,9 +49,9 @@ deaths = 0
 thinktime = 0
 steps = 0
 
-for i in range(1, 2):
-    game = core.Game('domination/agent.py', 'domination/deterministic_agent3.py',
-                     record=True, rendered=True,verbose=False, settings=settings, field=FI)
+for i in range(1, 101):
+    game = core.Game('domination/T-600.py', 'domination/agent.py',
+                     record=True, rendered=False,verbose=False, settings=settings, field=FI)
     game.run()
     #print game.stats
     print "Game:", i, "| Score:", game.stats.score_blue
@@ -61,7 +61,7 @@ for i in range(1, 2):
     kills += game.stats.deaths_red
     deaths += game.stats.deaths_blue
     thinktime += game.stats.think_time_blue
-    steps += game.stats.steps 
+    steps += game.stats.steps
 print "Win Ratio:", score/i, "%"
 print "Average Kills:", kills/i
 print "Average Deaths:", deaths/i
@@ -78,7 +78,7 @@ print "Average Game Steps:", steps/i
 
 
 
-    
+
 #ammo_amount=2,spawn_time=10,ammo_rate=14,max_see=70,max_turn=math.pi/4,max_score=100
 # Will run the entire game.
 
