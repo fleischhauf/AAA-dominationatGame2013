@@ -30,4 +30,4 @@ class Tournament1(run.Scenario):
 
 
 #Tournament1.one_on_one(red="domination/agent.py", blue="domination/agent.py", output_folder='_tmp')
-Tournament1.test(red="domination/deterministic_agents.py", blue="domination/agent.py")
+Tournament1.test(red="domination/deterministic_agent2.py", blue="domination/agent.py")
