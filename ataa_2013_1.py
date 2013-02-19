@@ -21,7 +21,7 @@ w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w
 w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w
 w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
 """
-
+#Commit test by Liveris.
 class Tournament1(run.Scenario):
     GENERATOR = None
     FIELD     = core.Field.from_string(FIELD)
