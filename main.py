@@ -49,9 +49,9 @@ deaths = 0
 thinktime = 0
 steps = 0
 
-for i in range(1, 101):
-    game = core.Game('domination/agent.py', 'domination/deterministic_agents.py',
-                     record=True, rendered=False,verbose=False, settings=settings, field=FI)
+for i in range(1, 2):
+    game = core.Game('domination/agent.py', 'domination/deterministic_agent3.py',
+                     record=True, rendered=True,verbose=False, settings=settings, field=FI)
     game.run()
     #print game.stats
     print "Game:", i, "| Score:", game.stats.score_blue

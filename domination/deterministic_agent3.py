@@ -3,8 +3,8 @@ class Agent(object):
     
     '''
     agent with id==1: goes from one ammo to the other
-    agent with id==0: goes from south cp to north cp
-    agent with id==2: goes from north cp to south cp
+    agent with id==0: goes from south cp to south camping and vice versa
+    agent with id==2: goes from north cp to north camping and vice versa
     '''
     NAME = "default_agent"
     
@@ -122,10 +122,10 @@ class Agent(object):
         if(self.role == 5): #go to left ammo
             self.goal = (152,136)
             
-        if(self.role == 6): #go to left ammo
+        if(self.role == 6): #camping south
             self.goal = (320,250)
-        if(self.role == 7): #go to left ammo
-            self.goal = (150,136)
+        if(self.role == 7): #camping north
+            self.goal = (150,40)
             #####
             #####
         #check if there:
@@ -183,17 +183,21 @@ class Agent(object):
             else:
                 self.role = 0
             '''
-            if (self.role == 1):
-                self.role = 4
+            if (self.role == 1): #goal south cp -> new goal south camping
+                self.role = 6
             
-            elif (self.role == 4):
+            elif (self.role == 6): #goal south camping -> new goal south cp
                 self.role = 1
                 
-            elif (self.role == 3):
+            elif (self.role == 3): # goal right ammo -> new goal left ammo
                 self.role = 5
             
-            elif (self.role == 5):
+            elif (self.role == 5): #goal left ammo -> new goal right ammo
                 self.role = 3
+            elif (self.role == 4): # goal north cp -> new goal north camping
+                self.role = 7
+            elif (self.role == 7): # goal north camping -> new goal north cp
+                self.role = 4
             
             '''
             if(self.role == 1 or self.role == 4):#reached the cp
