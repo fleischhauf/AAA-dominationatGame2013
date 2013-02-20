@@ -223,6 +223,7 @@ class Agent(object):
             print self.get_path_length(self.all_agents[2].observation.loc,self.path1)
             print self.costMatrix
             #print self.costMatrix[1][1]
+            ##
             
             m = Munkres()
             indexes = m.compute(self.costMatrix)
