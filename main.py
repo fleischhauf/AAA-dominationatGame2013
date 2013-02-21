@@ -21,26 +21,9 @@ w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w
 w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
 """
 
-'''
-if(self.id == 0):
-    self.goal = (152,136)
-'''
-'''
-if(self.id == 0):
-    left ammo = (152,136)
-if(self.id == 1):
-    right ammo  = (312,136)
-    ctr bot #(248, 216)
-    ctr top #(220, 56)
-'''
-# Make it a short game
-#settings = core.Settings(max_steps=1000)
 #These are the oficial settings
-settings = core.Settings(think_time=0.0625, ammo_rate=9, ammo_amount=1, max_score=100, max_see=70)
-#settings = core.Settings(max_steps=10000,ammo_amount=2,spawn_time=10,ammo_rate=14,max_see=70,max_turn=math.pi/4,max_score=100000)
+settings = core.Settings(think_time=0.059999999999999998, ammo_rate=9, ammo_amount=1, max_steps=300, max_score=100, max_see=80, max_turn=0.78539816339744828)
 FI = core.Field.from_string(FIELD)
-# Initialize a game
-#game = core.Game('domination/agent.py', 'domination/functiontest.py',
 score = 0
 ammo = 0
 enemyammo = 0
@@ -69,16 +52,3 @@ print "Average Ammo:", ammo/i
 print "Average Enemy Ammo:", enemyammo/i
 print "Average Think Time:", thinktime/i
 print "Average Game Steps:", steps/i
-    #print game.stats
-    #print game.stats.score_blue
-
-
-
-
-
-
-
-
-#ammo_amount=2,spawn_time=10,ammo_rate=14,max_see=70,max_turn=math.pi/4,max_score=100
-# Will run the entire game.
-

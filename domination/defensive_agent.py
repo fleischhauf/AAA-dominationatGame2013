@@ -59,11 +59,14 @@ class Agent(object):
             self.role=4
         '''   
         if(self.id == 0):
-            #self.role = 1
             self.role = 4
+
         if(self.id == 1):
-            #self.role = 3
-            self.role = 4
+            if(self.team == TEAM_RED):          
+                self.role = 4
+            else:
+                self.role = 1
+
         if(self.id == 2):
             #self.role = 4
             self.role = 1
