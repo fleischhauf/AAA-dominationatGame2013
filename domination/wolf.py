@@ -413,6 +413,49 @@ class Agent(object):
         if self.selected:
             if self.goal is not None:
                 pygame.draw.line(surface,(0,0,0),self.observation.loc, self.goal)
+        p = [(24, 120), (24, 136),(24, 152)]
+        #bot
+        path1 = [(24, 152),(50,185),(195,218)]#[(24, 152),(57,185),(192,218)]
+        #up
+        path2 = [(24, 120),(50,90),(180,39)]#55,80,180,39
+        
+        p1 = path1[0]
+        p2 = path1[1]
+        p3 = path1[2]
+        
+        self.draw_line(surface, p1,p2)
+        self.draw_line(surface,p2,p3)
+        
+        p1 = path2[0]
+        p2 = path2[1]
+        p3 = path2[2]
+        self.draw_line(surface,p1,p2)
+        self.draw_line(surface,p2,p3)
+    
+    def draw_line(self,surface,from_,to_):
+        import pygame
+        pygame.draw.line(surface,(0,0,0),from_,to_)
+        
+        
+    def draw_circle(self,loc,radius,color,surface):
+        self.draw_dot((loc[0]+radius,loc[1]),surface,color)
+        self.draw_dot((loc[0],loc[1]+radius),surface,color)
+        self.draw_dot((loc[0]-radius,loc[1]),surface,color)
+        self.draw_dot((loc[0],loc[1]-radius),surface,color)
+        #for x in range(loc[0]-41,loc[0]+41):
+        #    for y in range(loc[1]-41,loc[1]+41):
+        
+        #for x in range(loc[0]-)
+    def draw_path(self,path,surface):
+        for point in path:
+            for x in range(point[0]-2,point[0]+2):
+                for y in range(point[1]-2,point[1]+2):
+                    surface.set_at((x,y),(250,0,0,255))
+                    
+    def draw_dot(self,center,surface,color):
+        for x in range(center[0]-2,center[0]+2):
+            for y in range(center[1]-2,center[1]+2):
+                surface.set_at((x,y),color)
         
         
     def finalize(self, interrupted=False):
