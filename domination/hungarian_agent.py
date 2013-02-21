@@ -1,3 +1,5 @@
+import sys
+sys.path.append( '/libs' )
 from munkres import Munkres, print_matrix
 
 
