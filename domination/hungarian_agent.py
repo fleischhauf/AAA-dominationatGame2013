@@ -20,7 +20,7 @@ class Agent(object):
         for point in path:
             dx = point[0] - current_pos[0]
             dy = point[1] - current_pos[1]
-            length += math.sqrt(dx*dx + dy*dy)
+            length += sqrt(dx*dx + dy*dy)
             current_pos = point
             
         return(length)
@@ -40,8 +40,8 @@ class Agent(object):
         self.callsign = '%s-%d'% (('BLU' if team == TEAM_BLUE else 'RED'), id)
         
         #initialize matrix for hungarian algorithm
-        self.costMatrix=[[0.0]*3]*3
-        
+        #self.costMatrix=[[0.0]*3]*3
+        self.costMatrix = [[0 for i in range(4)] for j in range(3)]
         
         #role for agent:
         '''
@@ -111,27 +111,27 @@ class Agent(object):
         
         
         #set goals according to roles:
-        
+        '''
         if(self.role == 0): #left ammo (152,136)
             self.goal = (152,136)#(152,151)
-            '''
+            
             #up
             if(point_dist((152,151), obs.loc) < self.settings.tilesize-3):
                 self.goal = (152,111)
             #down
             if(point_dist((152,111), obs.loc) < self.settings.tilesize-3):
                 self.goal = (152,151)
-            '''
+            
         if(self.role == 3): #right ammo (312,136)
             self.goal = (312,136)#(312,151)
-            '''
+            
             #up
             if(point_dist((312,151), obs.loc) < self.settings.tilesize-3):
                 self.goal = (312,111)
             #down
             if(point_dist((312,111), obs.loc) < self.settings.tilesize-3):
                 self.goal = (312,151)
-            '''
+            
         if(self.role == 1): #bot cp
             self.goal = (248, 216)
         if(self.role == 4):#top cp
@@ -149,7 +149,7 @@ class Agent(object):
             #####
             #####
         #check if there:
-
+        '''
         
         
 
@@ -188,39 +188,21 @@ class Agent(object):
             
             
             #path for bottom cp for agent 0
-            self.path1=find_path(self.all_agents[0].observation.loc, (248, 216), self.mesh, self.grid, self.settings.tilesize)
+           # self.path1=find_path(self.all_agents[0].observation.loc, (248, 216), self.mesh, self.grid, self.settings.tilesize)
             #path for top cp for agent 0
-            self.path2=find_path(self.all_agents[0].observation.loc, (220, 56), self.mesh, self.grid, self.settings.tilesize)
-            #path for left ammo for agent 0  
-            self.path3=find_path(self.all_agents[0].observation.loc, (152,136), self.mesh, self.grid, self.settings.tilesize)
-            #path for bottom cp for agent 0
-            self.path4=find_path(self.all_agents[1].observation.loc, (248, 216), self.mesh, self.grid, self.settings.tilesize)
-            #path for top cp for agent 0
-            self.path5=find_path(self.all_agents[1].observation.loc, (220, 56), self.mesh, self.grid, self.settings.tilesize)
-            #path for left ammo for agent 0  
-            self.path6=find_path(self.all_agents[1].observation.loc, (152,136), self.mesh, self.grid, self.settings.tilesize)
-            #path for bottom cp for agent 0
-            self.path7=find_path(self.all_agents[2].observation.loc, (248, 216), self.mesh, self.grid, self.settings.tilesize)
-            #path for top cp for agent 0
-            self.path8=find_path(self.all_agents[2].observation.loc, (220, 56), self.mesh, self.grid, self.settings.tilesize)
-            #path for left ammo for agent 0  
-            self.path9=find_path(self.all_agents[2].observation.loc, (152,136), self.mesh, self.grid, self.settings.tilesize)
-            
-            self.costMatrix [0][0] = self.get_path_length(self.all_agents[0].observation.loc,self.path1)
-            self.costMatrix [0][1] = self.get_path_length(self.all_agents[0].observation.loc,self.path2)
-            self.costMatrix [0][2] = self.get_path_length(self.all_agents[0].observation.loc,self.path3)
-            self.costMatrix [1][0] = self.get_path_length(self.all_agents[1].observation.loc,self.path4)
-            self.costMatrix [1][1] = self.get_path_length(self.all_agents[1].observation.loc,self.path5)
-            self.costMatrix [1][2] = self.get_path_length(self.all_agents[1].observation.loc,self.path6)
-            self.costMatrix [2][0] = self.get_path_length(self.all_agents[2].observation.loc,self.path7)
-            self.costMatrix [2][1] = self.get_path_length(self.all_agents[2].observation.loc,self.path8)
-            self.costMatrix [2][2] = self.get_path_length(self.all_agents[2].observation.loc,self.path9)
-            
-            print self.id
-            print self.all_agents[0].observation.loc
-            print self.all_agents[1].observation.loc
-            print self.all_agents[2].observation.loc
-            print self.get_path_length(self.all_agents[2].observation.loc,self.path1)
+            x=0;
+            for id in self.all_agents:
+                path1=find_path(id.observation.loc, (220, 56), self.mesh, self.grid, self.settings.tilesize)
+                path2=find_path(id.observation.loc, (248, 216), self.mesh, self.grid, self.settings.tilesize)
+                path3=find_path(id.observation.loc, (152,136), self.mesh, self.grid, self.settings.tilesize)
+                path4=find_path(id.observation.loc, (312,136), self.mesh, self.grid, self.settings.tilesize)
+
+                self.costMatrix [x][0] = self.get_path_length(id.observation.loc,path1)
+                self.costMatrix [x][1] = self.get_path_length(id.observation.loc,path2)
+                self.costMatrix [x][2] = self.get_path_length(id.observation.loc,path3)
+                self.costMatrix [x][3] = self.get_path_length(id.observation.loc,path4)
+
+                x=x+1
             print self.costMatrix
             ##print self.costMatrix[1][1]
             
@@ -231,14 +213,18 @@ class Agent(object):
             for row, column in indexes:
                 value = self.costMatrix[row][column]
                 total += value
-                #print '(%d, %d) -> %d' % (row, column, value)
-            #print 'total cost: %d' % total
-        
-        
-        
-         
-            
-
+                print '(%d, %d) -> %d' % (row, column, value)
+                if (column==0):
+                    self.all_agents[row].goal= (220, 56)
+                elif (column==1):
+                    self.all_agents[row].goal= (248, 216)
+                elif (column==2):
+                    self.all_agents[row].goal= (152,136)
+                elif (column==3):
+                    self.all_agents[row].goal= (312,136)
+                #print 'goal : ', self.all_agents[row].goal
+                #print 'agent : ', row
+            print 'total cost: %d' % total
 
         #turn = math.pi/4
         speed = 0
@@ -259,68 +245,7 @@ class Agent(object):
             
         else: #reached whatever goal it was:
             #just circle
-            '''if(self.role < 5 and self.role >= 0):
-                self.role += 1
-            else:
-                self.role = 0
-            '''
-            if (self.role == 1): #goal south cp -> new goal south camping
-                self.role = 6
-            
-            elif (self.role == 6): #goal south camping -> new goal south cp
-                self.role = 1
-                
-            elif (self.role == 3): # goal right ammo -> new goal left ammo
-                self.role = 5
-            
-            elif (self.role == 5): #goal left ammo -> new goal right ammo
-                self.role = 3
-            elif (self.role == 4): # goal north cp -> new goal north camping
-                self.role = 7
-            elif (self.role == 7): # goal north camping -> new goal north cp
-                self.role = 4
-            
-            '''
-            if(self.role == 1 or self.role == 4):#reached the cp
-                self.role += 1
-            elif(self.role == 5):#clap with other agent
-                for i in range(len(self.all_agents)):
-                    if(self.all_agents[i].role == 0): #change others agants role !
-                        self.all_agents[i].role = 1
-                self.role = 0
-                
-            elif(self.role == 2): #clap with other agent
-                for i in range(len(self.all_agents)):
-                    if(self.all_agents[i].role == 3):
-                        self.all_agents[i].role = 4
-                        break
-                self.role = 3
-            '''
-        '''
-        if(self.id == 1 and not point_dist(self.goal, obs.loc) < self.settings.tilesize):
-            dx = path[0][0] - obs.loc[0]
-            dy = path[0][1] - obs.loc[1]
-            turn = angle_fix(math.atan2(dy, dx) - obs.angle)
-            if turn > self.settings.max_turn or turn < -self.settings.max_turn:
-                shoot = False
-            speed = (dx**2 + dy**2)**0.5
-        '''
-        '''
-        if(self.id == 2 and not point_dist(self.goal, obs.loc) < self.settings.tilesize):
-            dx = path[0][0] - obs.loc[0]
-            dy = path[0][1] - obs.loc[1]
-            turn = angle_fix(math.atan2(dy, dx) - obs.angle)
-            if turn > self.settings.max_turn or turn < -self.settings.max_turn:
-                shoot = False
-            speed = (dx**2 + dy**2)**0.5
-        '''
-        
-        #if(self.id = 0 and not obs.loc == self.goal):
-        #    pass
-    
-            
-        #if(self.id == 0):
-        #    print(turn,speed,self.id)
+            a=1
         return (turn,speed,shoot)
         
     def debug(self, surface):
