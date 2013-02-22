@@ -1,13 +1,10 @@
+import pickle
+import os.path
+from domination import core
 
 class Agent(object):
 
-    '''
-    agent with id==1: goes from one ammo to the other
-    agent with id==0: goes from south cp to north cp
-    agent with id==2: goes from north cp to south cp
-    '''
-    NAME = "rounder_Agent"
-
+    NAME = "superagent"
     def __init__(self, id, team, settings=None, field_rects=None, field_grid=None, nav_mesh=None, blob=None):
         """ Each agent is initialized at the beginning of each game.
             The first agent (id==0) can use this to set up global variables.
@@ -21,8 +18,12 @@ class Agent(object):
         self.settings = settings
         self.goal = None
         self.callsign = '%s-%d'% (('BLU' if team == TEAM_BLUE else 'RED'), id)
-
-
+        self.counter = 0
+        self.pathRTCP = [(50,90), (180,39), (216, 56)]
+        self.pathRBCP = [(50,185), (195,218), (248, 216)]
+        self.policy = 0 #"defensive", "hungarian", "bigloop", "twinloops", "default"
+        self.result = "W"
+        self.memory = []
         #role for agent:
         '''
         x-Ammo
@@ -35,6 +36,23 @@ class Agent(object):
           1-O-2
         '''
         self.role = 0
+        
+        if(os.path.exists("tmemory.p")):        
+            self.memory = pickle.load(open("tmemory.p","rb"))
+            print("man i read:", self.memory)
+            if (len(self.memory) >= 20):
+                self.memory = self.memory[-20]
+                #self.policy = self.memory[0][0]
+                wins = zip(*self.memory)[1].count("W")
+                if (wins < 10):
+                    self.policy = self.policy + 1
+            print self.policy
+            print self.memory[0][1]
+
+            count = zip(*self.memory)[1].count("W")
+            count = count/3.4
+            print "count:",count
+            
 
         # Read the binary blob, we're not using it though
         if blob is not None:
@@ -52,16 +70,25 @@ class Agent(object):
 
 
         #assign init roles:
+        '''
+        if (self.team==TEAM_BLUE):
+            self.role=1
+        else:
+            self.role=4
+        '''   
         if(self.id == 0):
-            #self.role = 1
-            self.role = 1
-        if(self.id == 1):
-            #self.role = 3
-            self.role = 5
-        if(self.id == 2):
-            #self.role = 4
             self.role = 4
 
+        if(self.id == 1):
+            if(self.team == TEAM_RED):          
+                self.role = 4
+            else:
+                self.role = 1
+
+        if(self.id == 2):
+            #self.role = 4
+            self.role = 1
+        
 
     def observe(self, observation):
         """ Each agent is passed an observation using this function,
@@ -113,9 +140,9 @@ class Agent(object):
                 self.goal = (312,151)
             '''
         if(self.role == 1): #bot cp
-            self.goal = (248, 216)
+            self.goal = self.pathRBCP[self.counter]
         if(self.role == 4):#top cp
-            self.goal = (220, 56)
+            self.goal = self.pathRTCP[self.counter]
 
         if(self.role == 2): #go to right ammo
             self.goal = (312,136)
@@ -187,7 +214,8 @@ class Agent(object):
                 self.role = 3
 
             elif (self.role == 1): ##2,4
-                self.role = 2
+                if(self.counter < 2):
+                    self.counter = self.counter + 1
 
             elif (self.role == 2): ##2,4
                 self.role = 4
@@ -196,7 +224,8 @@ class Agent(object):
                 self.role = 0
 
             elif (self.role == 4):
-                self.role = 5
+                if(self.counter < 2):
+                    self.counter = self.counter + 1
 
             elif (self.role == 5):
                 self.role = 1
@@ -267,6 +296,15 @@ class Agent(object):
             interrupt (CTRL+C) by the user. Use it to
             store any learned variables and write logs/reports.
         """
+        if (self.observation.score[self.team] >= 50):
+            self.result = "W"
+        else:
+            self.result = "L"
+        
+        newdata = self.policy, self.result
+        self.memory.append(newdata)
+        print "final:", self.memory
+        pickle.dump(self.memory, open("tmemory.p","wb"))
         pass
 
 

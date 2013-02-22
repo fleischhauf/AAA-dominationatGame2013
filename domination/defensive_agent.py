@@ -1,12 +1,7 @@
 
 class Agent(object):
 
-    '''
-    agent with id==1: goes from one ammo to the other
-    agent with id==0: goes from south cp to north cp
-    agent with id==2: goes from north cp to south cp
-    '''
-    NAME = "defensive_agent"
+    NAME = "Terminator_T-600"
 
     def __init__(self, id, team, settings=None, field_rects=None, field_grid=None, nav_mesh=None, blob=None):
         """ Each agent is initialized at the beginning of each game.

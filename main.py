@@ -32,9 +32,9 @@ deaths = 0
 thinktime = 0
 steps = 0
 
-for i in range(1, 101):
-    game = core.Game('domination/T-600.py', 'domination/agent.py',
-                     record=True, rendered=False,verbose=False, settings=settings, field=FI)
+for i in range(1, 4):
+    game = core.Game('domination/agent.py', 'domination/superagent.py',
+                     record=True, rendered=False,verbose=True, settings=settings, field=FI)
     game.run()
     #print game.stats
     print "Game:", i, "| Score:", game.stats.score_blue
