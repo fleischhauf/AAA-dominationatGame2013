@@ -24,7 +24,8 @@ Contents
    scenarios
    fields
    utils
-   
+   libraries
+
 Quickstart
 ----------
 
