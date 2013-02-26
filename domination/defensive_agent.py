@@ -82,30 +82,27 @@ class Agent(object):
 
     def action(self):
         """ This function is called every step and should
-            return a tuple in the form: (turn, speed, shoot)
+        return a tuple in the form: (turn, speed, shoot)
         """
         turn = 0
+        
         speed = 0
+        
         shoot = False
 
 
+        
         obs = self.observation
+        
         #print(self.role)
 
 
 
+        
         #set goals according to roles:
 
         if(self.role == 0): #left ammo (152,136)
-            self.goal = (152,136)#(152,151)
-            '''
-            #up
-            if(point_dist((152,151), obs.loc) < self.settings.tilesize-3):
-                self.goal = (152,111)
-            #down
-            if(point_dist((152,111), obs.loc) < self.settings.tilesize-3):
-                self.goal = (152,151)
-            '''
+	        pass#self.goal = obs.cps[0][0:2]
         if(self.role == 3): #right ammo (312,136)
             self.goal = (312,136)#(312,151)
             '''
@@ -117,9 +114,10 @@ class Agent(object):
                 self.goal = (312,151)
             '''
         if(self.role == 1): #bot cp
-            self.goal = (248, 216)
+            self.goal = self.goal = obs.cps[0][0:2]#(248, 216)
         if(self.role == 4):#top cp
-            self.goal = (216, 56)
+	        self.goal = obs.cps[1][0:2]
+            #self.goal = (216, 56)
 
         if(self.role == 2): #go to right ammo
             self.goal = (312,136)
@@ -150,6 +148,9 @@ class Agent(object):
         # Clicked is a list of tuples of (x, y, shift_down, is_selected)
         if self.selected and self.observation.clicked:
             self.goal = self.observation.clicked[0][0:2]
+        
+        if self.selected:
+            print(self.observation)
 
         # Walk to random CP
         #if self.goal is None:
