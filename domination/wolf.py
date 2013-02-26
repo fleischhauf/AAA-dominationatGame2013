@@ -27,10 +27,13 @@ class Agent(object):
         and update the state_action_vals policy and avg_policy accordingly for all agents.
         '''
         if(self.id == 0):
-            self.state_action_vals = [[[[[[[[[.0]*5]*2]*2]*2]*2]*2]*5]*5]*5
-            self.policy = [[[[[[[[[.2]*5]*2]*2]*2]*2]*2]*5]*5]*5
-            self.avg_policy = [[[[[[[[[.2]*5]*2]*2]*2]*2]*2]*5]*5]*5
-            self.count = [[[[[[[[0]*2]*2]*2]*2]*2]*5]*5]*5
+            self.state_action_vals = [[[[[[[[[.0 for i in range(5)]for j in range(2)] for k in range(2)] for l in range(2)] for m in range(2)] for n in range(2)] for o in range(5)] for p in range(5)] for q in range(5)]
+            self.policy = [[[[[[[[[.0 for i in range(5)]for j in range(2)] for k in range(2)] for l in range(2)] for m in range(2)] for n in range(2)] for o in range(5)] for p in range(5)] for q in range(5)]
+            
+            self.avg_policy = [[[[[[[[[.0 for i in range(5)]for j in range(2)] for k in range(2)] for l in range(2)] for m in range(2)] for n in range(2)] for o in range(5)] for p in range(5)] for q in range(5)]
+            
+            self.count = [[[[[[[[0 for j in range(2)] for k in range(2)] for l in range(2)] for m in range(2)] for n in range(2)] for o in range(5)] for p in range(5)] for q in range(5)]
+            
         #defines world state the agent is currently in
         self.world_state_new = []
         self.world_state_old = []
@@ -64,7 +67,7 @@ class Agent(object):
         self.AMMO_LEFT = (152,136)
         self.AMMO_RIGHT = (312,136)
         
-        self.POI = [self.CAMP,self.CP_UP,self.CP_BOT,self.AMMO_LEFT,self.AMMO_RIGHT]
+        self.ACTIONS_POS = [self.CAMP,self.CP_UP,self.CP_BOT,self.AMMO_LEFT,self.AMMO_RIGHT]
 
         
         self.CAMP_NO = 0
@@ -73,8 +76,8 @@ class Agent(object):
         self.AMMO_LEFT_NO = 3
         self.AMMO_RIGHT_NO = 4
         
-        self.ACTIONS = [self.CAMP_NO,self.CP_UP_NO,self.CP_BOT_NO,self.AMMO_LEFT_NO,self.AMMO_RIGHT_NO]  
-        
+        self.ACTIONS_NO = [self.CAMP_NO,self.CP_UP_NO,self.CP_BOT_NO,self.AMMO_LEFT_NO,self.AMMO_RIGHT_NO]  
+    
         #wolf parameters:
         self.ALPHA = 0.5
         self.DELTA_L = 0.01
@@ -105,11 +108,11 @@ class Agent(object):
         """
         self.observation = observation
         self.selected = observation.selected
-        
+        '''
         if observation.selected:
             print("id:",self.id)
             print observation
-            
+        '''    
     '''
     moves to selected goal
     '''
@@ -134,14 +137,14 @@ class Agent(object):
     '''
     finds region of interest as in state space
     '''
-    def find_region(self,obs):
+    def find_region(self,loc):
         #arg_min pointsofinterest (dist to point from loc)
         min_length = 10000
         closest_poi = (0,0)
         length = 0
-        for p in self.POI:
-            path = find_path(obs.loc, p, self.mesh, self.grid, self.settings.tilesize)
-            length  = self.get_path_length(obs,path)
+        for p in self.ACTIONS_POS:
+            path = find_path(loc, p, self.mesh, self.grid, self.settings.tilesize)
+            length  = self.get_path_length(self.observation,path)
             if(length < min_length):
                 min_length = length
                 closest_poi = p
@@ -184,7 +187,7 @@ class Agent(object):
     def wolf_find_max_a(self,action_values):
         max = -1000
         max_a = -1
-        for a in self.ACTIONS:
+        for a in self.ACTIONS_NO:
             if(action_values[a] > max):
                 max = action_values[a]
                 max_a = a
@@ -196,7 +199,7 @@ class Agent(object):
     '''
     def wolf_find_max_a_val(self,action_values):
         max = -1000
-        for a in self.ACTIONS:
+        for a in self.ACTIONS_NO:
             if(action_values[a] > max):
                 max = action_values[a]
         return(max)
@@ -249,7 +252,7 @@ class Agent(object):
         ### update estimate of avg. policy
         self.all_agents[0].count[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]] += 1
         c = self.all_agents[0].count[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]]
-        for b in self.ACTIONS:
+        for b in self.ACTIONS_NO:
             p = self.all_agents[0].policy[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]][b]
             p_avg = self.all_agents[0].avg_policy[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]][b]
             self.all_agents[0].avg_policy[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]][b] += 1/c * (p - p_avg)
@@ -259,7 +262,7 @@ class Agent(object):
         #where delta = delta_w if (Pi(s,*) * Q(s,*) > (p_avg(s, *) * Q(s,*)
         sum_avg = 0.0
         sum_p = 0.0
-        for a in self.ACTIONS:
+        for a in self.ACTIONS_NO:
             sum_p += self.all_agents[0].policy[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]][a]
             sum_avg += self.all_agents[0].avg_policy[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]][a]
         delta = 0
@@ -270,15 +273,15 @@ class Agent(object):
         action_vals = self.all_agents[0].state_action_vals[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]]
         max_a = self.wolf_find_max_a(action_vals)
         
-        for a in self.ACTIONS:
+        for a in self.ACTIONS_NO:
             # if max action add delta
             if(a == max_a):
                 self.all_agents[0].policy[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]][a] += delta 
             #otherwise substract fraction of delta
             else:
-                self.all_agents[0].policy[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]][a] -= delta / (len(self.ACTIONS)-1)
+                self.all_agents[0].policy[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]][a] -= delta / (len(self.ACTIONS_NO)-1)
         sum = 0.0
-        for a in self.ACTIONS:
+        for a in self.ACTIONS_NO:
             val = self.all_agents[0].policy[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]][a]
             sum += val
             if(val > 1):
@@ -290,6 +293,9 @@ class Agent(object):
         if(sum > 1):
             i = random.randrange(0,5)
             self.all_agents[0].policy[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]][i] += 1.0 -sum
+        if(sum < 1):
+            i = random.randrange(0,5)
+            self.all_agents[0].policy[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]][i] += 1.0 - sum
             #print("bigger 1",sum)
             
     
@@ -312,15 +318,16 @@ class Agent(object):
         
         
         #perform learning:
-        res  = self.find_region(obs)
+        res  = self.find_region(obs.loc)
         self.region = res[0]
         agent_0 = self.all_agents[0].region
         agent_1 = self.all_agents[1].region
-        agent_2 = self.all_agents[2].region
+        agent_2 = 0#self.all_agents[2].region
         
         #find ammopacks
         ammo0 = 0
         ammo1 = 0
+        '''
         ammopacks = filter(lambda x: x[2] == "Ammo", obs.objects)
         if ammopacks:
             for pos in ammopacks:
@@ -328,10 +335,12 @@ class Agent(object):
                     ammo0 = 1
                 elif(pos[0:2] == self.AMMO_RIGHT):
                     ammo1 = 1
+        '''
         hasAmmo = 0
+        '''
         if(obs.ammo > 0):
             hasAmmo = 1
-        
+        '''
         cp0 = 0
         cp1 = 0
         if(obs.cps[0][2] == 2):
@@ -354,7 +363,7 @@ class Agent(object):
         else:
             self.reward -=1
         '''
-        self.reward = 0.0
+        self.reward = -200
         
         if(not(self.world_state_new == [] or self.world_state_old ==[])):
 
@@ -407,57 +416,59 @@ class Agent(object):
         """
         import pygame
         # First agent clears the screen
+        
         if self.id == 0:
             surface.fill((0,0,0,0))
+        
+        os = self.world_state_old
         # Selected agents draw their info
         if self.selected:
             if self.goal is not None:
                 pygame.draw.line(surface,(0,0,0),self.observation.loc, self.goal)
-        p = [(24, 120), (24, 136),(24, 152)]
-        #bot
-        path1 = [(24, 152),(50,185),(195,218)]#[(24, 152),(57,185),(192,218)]
-        #up
-        path2 = [(24, 120),(50,90),(180,39)]#55,80,180,39
+                print("id:",self.id,self.all_agents[0].policy[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]])
         
-        p1 = path1[0]
-        p2 = path1[1]
-        p3 = path1[2]
+        #my code
+        height = surface.get_height()
+        width = surface.get_width()
         
-        self.draw_line(surface, p1,p2)
-        self.draw_line(surface,p2,p3)
+
+        min = 10000
+        max = -10000
+        for i in self.ACTIONS_NO:
+            val = self.all_agents[0].state_action_vals[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]][i]
+            if(val < min):
+                min = val
+            if(val > max):
+                max = val
+            
+        r = max - min
         
-        p1 = path2[0]
-        p2 = path2[1]
-        p3 = path2[2]
-        self.draw_line(surface,p1,p2)
-        self.draw_line(surface,p2,p3)
-    
-    def draw_line(self,surface,from_,to_):
-        import pygame
-        pygame.draw.line(surface,(0,0,0),from_,to_)
-        
-        
-    def draw_circle(self,loc,radius,color,surface):
-        self.draw_dot((loc[0]+radius,loc[1]),surface,color)
-        self.draw_dot((loc[0],loc[1]+radius),surface,color)
-        self.draw_dot((loc[0]-radius,loc[1]),surface,color)
-        self.draw_dot((loc[0],loc[1]-radius),surface,color)
-        #for x in range(loc[0]-41,loc[0]+41):
-        #    for y in range(loc[1]-41,loc[1]+41):
-        
-        #for x in range(loc[0]-)
-    def draw_path(self,path,surface):
-        for point in path:
-            for x in range(point[0]-2,point[0]+2):
-                for y in range(point[1]-2,point[1]+2):
-                    surface.set_at((x,y),(250,0,0,255))
-                    
-    def draw_dot(self,center,surface,color):
-        for x in range(center[0]-2,center[0]+2):
-            for y in range(center[1]-2,center[1]+2):
-                surface.set_at((x,y),color)
-        
-        
+        for x in range(0,width):
+            for y in range(0,height):
+                for p in self.ACTIONS_NO:
+                    if((x,y) == self.ACTIONS_POS[p]):
+                        res = self.find_region((x,y))
+                        reg = res[0]
+                        val = self.all_agents[0].state_action_vals[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]][reg]
+                        if(not(r == 0)):
+                            col =(val-min)/r
+                        col_val = col * 255
+                        for x_ in range(x-20,x+20,2):
+                            for y_ in range(y-20,y+20,2):
+                                surface.set_at((x_,y_),(250,0,0,col_val))
+                    #if(point_dist(self.ACTIONS_POS[p], (x,y))> 30):
+                    #    #print("PENIS")
+                    #    surface.set_at((x,y),(250,0,0,250))
+                #print(x,y,surface.get_at((x,y)))
+            
+                #res = self.find_region((x,y))
+                #reg = res[0]
+                
+                #val = self.all_agents[0].state_action_vals[os[0]][os[1]][os[2]][os[3]][os[4]][os[5]][os[6]][os[7]][reg]
+                #col =(val-min)/r
+                #print(col)
+                #surface.set_at((x,y),(100,0,0,int( col * 100 )))
+                
     def finalize(self, interrupted=False):
         """ This function is called after the game ends, 
             either due to time/score limits, or due to an
