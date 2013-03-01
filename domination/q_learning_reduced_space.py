@@ -51,16 +51,17 @@ class Agent(object):
         '''
         #TODO: make team dependent !!!
         self.ACTIONS = [(232,56),(264,216),(184,168),(312, 104),(40,180),(440,90)]
-        self.stateActionValues = [[[[[10.0 for move in range(0,6)]for hasAmmo in range(0,2)] for cp2 in range(0,2)]for cp1 in range(0,2)]  for states in range(0,6)] 
+        ##self.stateActionValues = [[[[[10.0 for move in range(0,6)]for hasAmmo in range(0,2)] for cp2 in range(0,2)]for cp1 in range(0,2)]  for states in range(0,6)] 
         ##self.stateActionValues = [[[[9.0 for move_y in range(0,9)] for move_x in range(0,9)] for y in range(0,27)]for x in range(0,49)]
         #else:
-        ##self.stateActionValues = pickle.load(blob)
+        self.stateActionValues = pickle.load(blob)
         #self.stateActionValues = tstateActionValues pickle.load(open("stateActionValues.p","wb"))
         self.action_taken = self.SPAWN_FR
         self.old_state = [self.SPAWN_FR,0,0,0] #assuming cp1 and 2 are not owned: 2, taken by blue : 1
         self.current_state  = self.old_state
         self.first_run = True
-        
+        self.score_old = 0
+        self.score_cur = 0
         
         #assume we start at our spawn point
         self.loc = self.ACTIONS[self.SPAWN_FR] 
@@ -174,6 +175,17 @@ class Agent(object):
         
         transition_complete = self.check_transition()
         
+        #calculate dynamic reward according to game score:
+        if(self.first_run):
+            self.score_cur = self.observation.score[0]
+            self.first_run = False
+        else:
+            self.score_cur = self.observation.score[0]
+            self.reward += self.score_cur - self.score_old
+            print(self.reward," cur:",self.score_cur," old:", self.score_old)
+        
+        
+        
         if(transition_complete ):
             #print("transition complete")
             self.goal = self.loc
@@ -193,9 +205,11 @@ class Agent(object):
             
             self.current_state = [self.action_taken,cp1,cp2,has_ammo]
             
+            '''
             self.reward = 0.0
             #check reward!
             #TODO: only checks for cps, EXTEND!
+            
             same_spot = point_dist(self.loc, self.last_loc) < self.settings.tilesize
         
             if(point_dist(self.loc, self.ACTIONS[self.CP_DOWN]) < self.settings.tilesize and  self.old_state[2] < 1):#and not  same_spot):
@@ -204,15 +218,17 @@ class Agent(object):
             if(point_dist(self.loc, self.ACTIONS[self.CP_UP]) < self.settings.tilesize  and  self.old_state[1] < 1):#and not same_spot ):
                 print("yey, reward! CP up")
                 self.reward = 1
-                
+            '''
             #do learning!
             self.update_q_table()
+            print("gave reward:",self.reward)
             
             #look for next smart action
             res = self.get_max_action(self.current_state)
             self.action_taken = res[0]
             self.goal = self.ACTIONS[self.action_taken]
-            self.reward = 0
+            #reset reward
+            self.reward = 0.0
         else:
             #print("transition not complete")
             self.goal = self.ACTIONS[self.action_taken]
@@ -303,9 +319,11 @@ class Agent(object):
             else:
                 turn = 0
                 speed = 0
+                
         self.last_loc = self.loc
         self.old_state = self.current_state
-        self.first_run = False
+        
+        self.score_old = self.score_cur
         return(turn,speed,shoot)
     
             
