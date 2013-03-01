@@ -51,13 +51,13 @@ class Agent(object):
         '''
         #TODO: make team dependent !!!
         self.ACTIONS = [(232,56),(264,216),(184,168),(312, 104),(40,180),(440,90)]
-        self.stateActionValues = [[[[10.0 for move in range(0,6)] for cp2 in range(0,2)]for cp1 in range(0,2)]  for states in range(0,6)] 
+        self.stateActionValues = [[[[[10.0 for move in range(0,6)]for hasAmmo in range(0,2)] for cp2 in range(0,2)]for cp1 in range(0,2)]  for states in range(0,6)] 
         ##self.stateActionValues = [[[[9.0 for move_y in range(0,9)] for move_x in range(0,9)] for y in range(0,27)]for x in range(0,49)]
         #else:
-        self.stateActionValues = pickle.load(blob)
+        ##self.stateActionValues = pickle.load(blob)
         #self.stateActionValues = tstateActionValues pickle.load(open("stateActionValues.p","wb"))
         self.action_taken = self.SPAWN_FR
-        self.old_state = [self.SPAWN_FR,0,0] #assuming cp1 and 2 are not owned: 2, taken by blue : 1
+        self.old_state = [self.SPAWN_FR,0,0,0] #assuming cp1 and 2 are not owned: 2, taken by blue : 1
         self.current_state  = self.old_state
         self.first_run = True
         
@@ -96,14 +96,14 @@ class Agent(object):
         #pos_y = self.current_state[1]
         
         print("for max values",self.current_state)
-        for l in self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]]:
+        for l in self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]]:
                 print(l)
         print("ACTIONMATRIX")
         
         #print("get max action",current_state," length",len(self.stateActionValues[current_state[0]][current_state[1]]))
         for action in range(0,6):
-            if(self.stateActionValues[current_state[0]][current_state[1]][current_state[2]][action] > max_val):
-                max_val = self.stateActionValues[current_state[0]][current_state[1]][current_state[2]][action]
+            if(self.stateActionValues[current_state[0]][current_state[1]][current_state[2]][current_state[3]][action] > max_val):
+                max_val = self.stateActionValues[current_state[0]][current_state[1]][current_state[2]][current_state[3]][action]
                 max_action = action
         #print("max at ",x,y,max_val)
         return([max_action,max_val])
@@ -119,14 +119,14 @@ class Agent(object):
         next_action = res[0]
         
         #print("qtable old_state",self.old_state)
-        future_reward = self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][next_action] #check if last action 
-        old_value = self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.action_taken]
+        future_reward = self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]][next_action] #check if last action 
+        old_value = self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.current_state[3]][self.action_taken]
         
         #print("future reward = ",future_reward)
         #print("old_value=",old_value)
         #print("reward = ",self.reward)
         
-        self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.action_taken ] = old_value +  self.LR * (self.reward + self.DISCOUNT * future_reward - old_value  )
+        self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.current_state[3]][self.action_taken ] = old_value +  self.LR * (self.reward + self.DISCOUNT * future_reward - old_value  )
         '''
         for ac_number in range(0,len(self.stateActionValues)):
             if(ac_number == 0):
@@ -187,7 +187,11 @@ class Agent(object):
             if(cps[1][2] < 1):
                 cp2 = 1
             
-            self.current_state = [self.action_taken,cp1,cp2]
+            has_ammo = 0
+            if(self.observation.ammo > 0):
+                has_ammo = 1
+            
+            self.current_state = [self.action_taken,cp1,cp2,has_ammo]
             
             self.reward = 0.0
             #check reward!
@@ -277,6 +281,14 @@ class Agent(object):
         shoot = False
         #take action
         #print("new goal:",self.goal)
+        obs = self.observation
+        if (obs.ammo > 0 and 
+            obs.foes and 
+            point_dist(obs.foes[0][0:2], obs.loc) < self.settings.max_range and
+            not line_intersects_grid(obs.loc, obs.foes[0][0:2], self.grid, self.settings.tilesize)):
+            self.goal = obs.foes[0][0:2]
+            shoot = True
+ 
         if(not self.goal == None):
             path = find_path(self.observation.loc, self.goal, self.mesh, self.grid, self.settings.tilesize)
             if path:
