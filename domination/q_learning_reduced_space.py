@@ -121,13 +121,13 @@ class Agent(object):
         
         #print("qtable old_state",self.old_state)
         future_reward = self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]][next_action] #check if last action 
-        old_value = self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.current_state[3]][self.action_taken]
+        old_value = self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.old_state[3]][self.action_taken]
         
         #print("future reward = ",future_reward)
         #print("old_value=",old_value)
         #print("reward = ",self.reward)
         
-        self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.current_state[3]][self.action_taken ] = old_value +  self.LR * (self.reward + self.DISCOUNT * future_reward - old_value  )
+        self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.old_state[3]][self.action_taken ] = old_value +  self.LR * (self.reward + self.DISCOUNT * future_reward - old_value  )
         '''
         for ac_number in range(0,len(self.stateActionValues)):
             if(ac_number == 0):
