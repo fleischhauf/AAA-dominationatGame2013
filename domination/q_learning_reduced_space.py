@@ -51,14 +51,14 @@ class Agent(object):
         '''
         #TODO: make team dependent !!!
         self.ACTIONS = [(232,56),(264,216),(184,168),(312, 104),(40,180),(440,90)]
-        self.stateActionValues = [[[[10.0 for cp1 in range(0,1)]for cp2 in range(0,2)] for move in range(0,6)] for states in range(0,6)] 
+        self.stateActionValues = [[[[10.0 for move in range(0,6)] for cp2 in range(0,2)]for cp1 in range(0,2)]  for states in range(0,6)] 
         ##self.stateActionValues = [[[[9.0 for move_y in range(0,9)] for move_x in range(0,9)] for y in range(0,27)]for x in range(0,49)]
         #else:
-        #self.stateActionValues = pickle.load(blob)
+        self.stateActionValues = pickle.load(blob)
         #self.stateActionValues = tstateActionValues pickle.load(open("stateActionValues.p","wb"))
         self.action_taken = self.SPAWN_FR
-        self.old_state = self.SPAWN_FR
-        self.current_state  = self.SPAWN_FR
+        self.old_state = [self.SPAWN_FR,0,0] #assuming cp1 and 2 are not owned: 2, taken by blue : 1
+        self.current_state  = self.old_state
         self.first_run = True
         
         
@@ -94,15 +94,16 @@ class Agent(object):
         max_action = -1
         #pos_x = self.current_state[0]
         #pos_y = self.current_state[1]
-        '''
-        print("for max values",self.current_state,pos_x,pos_y)
-        for l in self.stateActionValues[self.current_state[0]][self.current_state[1]]:
+        
+        print("for max values",self.current_state)
+        for l in self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]]:
                 print(l)
         print("ACTIONMATRIX")
-        '''
+        
+        #print("get max action",current_state," length",len(self.stateActionValues[current_state[0]][current_state[1]]))
         for action in range(0,6):
-            if(self.stateActionValues[current_state][action] > max_val):
-                max_val = self.stateActionValues[current_state][action]
+            if(self.stateActionValues[current_state[0]][current_state[1]][current_state[2]][action] > max_val):
+                max_val = self.stateActionValues[current_state[0]][current_state[1]][current_state[2]][action]
                 max_action = action
         #print("max at ",x,y,max_val)
         return([max_action,max_val])
@@ -117,22 +118,26 @@ class Agent(object):
         res = self.get_max_action(self.current_state)
         next_action = res[0]
         
-        future_reward = self.stateActionValues[self.current_state][next_action] #check if last action 
-        old_value = self.stateActionValues[self.old_state][self.action_taken]
-        print("future reward = ",future_reward)
-        print("old_value=",old_value)
-        print("reward = ",self.reward)
-        self.stateActionValues[self.old_state][self.action_taken ] = old_value +  self.LR * (self.reward + self.DISCOUNT * future_reward - old_value  )
+        #print("qtable old_state",self.old_state)
+        future_reward = self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][next_action] #check if last action 
+        old_value = self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.action_taken]
+        
+        #print("future reward = ",future_reward)
+        #print("old_value=",old_value)
+        #print("reward = ",self.reward)
+        
+        self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.action_taken ] = old_value +  self.LR * (self.reward + self.DISCOUNT * future_reward - old_value  )
+        '''
         for ac_number in range(0,len(self.stateActionValues)):
             if(ac_number == 0):
-                '''
-                self.CP_UP = 0
-                self.CP_DOWN = 1
-                self.AMMO_1 = 2
-                self.AMMO_2 = 3
-                self.SPAWN_FR = 4
-                self.SPAWN_EN = 5
-                '''
+        '''
+        #self.CP_UP = 0
+        #self.CP_DOWN = 1
+        #self.AMMO_1 = 2
+        #self.AMMO_2 = 3
+        #self.SPAWN_FR = 4
+        #self.SPAWN_EN = 5
+        '''
                 print("cpup:",self.stateActionValues[ac_number])
             elif(ac_number == 1):
                 print("cpdown:",self.stateActionValues[ac_number])
@@ -144,6 +149,7 @@ class Agent(object):
                 print("spawn_fr:",self.stateActionValues[ac_number])
             elif(ac_number == 5):
                 print("spawn_en:",self.stateActionValues[ac_number])
+        '''
     '''
     check if transition is complete
     '''
@@ -171,16 +177,28 @@ class Agent(object):
         if(transition_complete ):
             #print("transition complete")
             self.goal = self.loc
+            #check control points:
+            cps = self.observation.cps
+            #not taken by blue
+            cp1 = 0
+            if(cps[0][2] < 1):
+                cp1 = 1
+            cp2 = 0
+            if(cps[1][2] < 1):
+                cp2 = 1
             
-            self.current_state = self.action_taken
+            self.current_state = [self.action_taken,cp1,cp2]
             
             self.reward = 0.0
             #check reward!
             #TODO: only checks for cps, EXTEND!
             same_spot = point_dist(self.loc, self.last_loc) < self.settings.tilesize
-            if(point_dist(self.loc, self.ACTIONS[self.CP_DOWN]) < self.settings.tilesize and not  same_spot):
+        
+            if(point_dist(self.loc, self.ACTIONS[self.CP_DOWN]) < self.settings.tilesize and  self.old_state[2] < 1):#and not  same_spot):
+                print("yey, reward! CP down")
                 self.reward = 1
-            if(point_dist(self.loc, self.ACTIONS[self.CP_UP]) < self.settings.tilesize  and not same_spot ):
+            if(point_dist(self.loc, self.ACTIONS[self.CP_UP]) < self.settings.tilesize  and  self.old_state[1] < 1):#and not same_spot ):
+                print("yey, reward! CP up")
                 self.reward = 1
                 
             #do learning!
@@ -349,3 +367,4 @@ class Agent(object):
         print("written pickle")
         pass
         
+
