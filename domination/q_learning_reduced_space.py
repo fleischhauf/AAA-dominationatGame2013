@@ -20,17 +20,20 @@ class Agent(object):
         self.callsign = '%s-%d'% (('BLU' if team == TEAM_BLUE else 'RED'), id)
         
         # Read the binary blob, we're not using it though
-        if blob is not None:
+        if blob is not None and self.id == 0:
+            # Remember the blob path so we can write back to it
+            self.blobpath = blob.name
+            self.blobcontent = pickle.loads(blob.read())
             print "Agent %s received binary blob of %s" % (
-               self.callsign, type(pickle.loads(blob.read())))
-            # Reset the file so other agents can read it.
+               self.callsign, type(self.blobcontent))
+            # Reset the file so other agents can read it too.
             blob.seek(0) 
-        
+            
         # Recommended way to share variables between agents.
         if id == 0:
             self.all_agents = self.__class__.all_agents = []
         self.all_agents.append(self)
-        
+
         #assuming the agent can move backward.
         #25,50
         #if(blob == None):
@@ -49,16 +52,56 @@ class Agent(object):
         spawn_FR: 40,180
         spawn_EN: 440,90
         '''
+        self.sa_vals = 0
+        if(self.id == 0):
+            self.sa_vals = pickle.load(blob)
+            self.stateActionValues = self.sa_vals[0]
+        if(self.id == 1):
+            self.stateActionValues = self.all_agents[0].sa_vals[1] 
+        '''       
+        print(self.id)
+        if(self.id == 0):
+            try:
+                self.sa_vals = pickle.load(blob)
+            except:
+                pass
+            #print(self.sa_vals)
+            #print(self.id,"done")
+        else:
+            pass
+            #print(self.id,"done")
+        #self.sa_vals = 0
+        '''
+        '''
+        if(self.id == 0):
+            
+            print(self.sa_vals)
+            print(self.sa_vals[0])
+            print(self.sa_vals[1])
+            self.stateActionValues = self.sa_vals[0]
+            print("agent 0 done!")
+        if(self.id == 1):
+            print(self.sa_vals[0])
+            print(self.sa_vals[1])
+            self.stateActionValues = self.all_agents[0].sa_vals[1]
+            print("agent 1 done!")
+        '''
         #TODO: make team dependent !!!
         self.ACTIONS = [(232,56),(264,216),(184,168),(312, 104),(40,180),(440,90)]
-        ##self.stateActionValues = [[[[[10.0 for move in range(0,6)]for hasAmmo in range(0,2)] for cp2 in range(0,2)]for cp1 in range(0,2)]  for states in range(0,6)] 
-        ##self.stateActionValues = [[[[9.0 for move_y in range(0,9)] for move_x in range(0,9)] for y in range(0,27)]for x in range(0,49)]
+        ###self.stateActionValues = [[[[[[[10.0 for move in range(0,6)] for cp2 in range(0,2)] for cp1 in range(0,2)]for hasAmmo2 in range(0,2)] for states2 in range(0,6)]for hasAmmo1 in range(0,2)]  for states1 in range(0,6)] 
+        #self.stateActionValues = [[[[[10.0 for move in range(0,6)]for hasAmmo in range(0,2)] for cp2 in range(0,2)]for cp1 in range(0,2)]  for states in range(0,6)] 
+        #[[[[[10.0 for move in range(0,6)]for hasAmmo in range(0,2)] for cp2 in range(0,2)]for cp1 in range(0,2)]  for states in range(0,6)] 
+        #self.stateActionValues = [[[[9.0 for move_y in range(0,9)] for move_x in range(0,9)] for y in range(0,27)]for x in range(0,49)]
         #else:
-        self.stateActionValues = pickle.load(blob)
+        ##self.stateActionValues = pickle.load(blob)
         #self.stateActionValues = tstateActionValues pickle.load(open("stateActionValues.p","wb"))
+        
+
+        
         self.action_taken = self.SPAWN_FR
-        self.old_state = [self.SPAWN_FR,0,0,0] #assuming cp1 and 2 are not owned: 2, taken by blue : 1
+        self.old_state = [self.SPAWN_FR,0,self.SPAWN_FR,0,0,0] #assuming cp1 and 2 are not owned: 2, taken by blue : 1
         self.current_state  = self.old_state
+        self.my_state = [self.SPAWN_FR,0] #state, ammo
         self.first_run = True
         self.score_old = 0
         self.score_cur = 0
@@ -87,6 +130,22 @@ class Agent(object):
         self.selected = observation.selected
         if observation.selected:
             print observation
+            
+            
+            
+            
+        transition_complete = self.check_transition()
+        me_has_ammo = 0
+        if(self.observation.ammo > 0):
+            me_has_ammo = 1
+        
+        if(transition_complete):
+            self.my_state = [self.action_taken,me_has_ammo]
+        else:
+            if(self.id == 0):
+                self.my_state = [self.old_state[0],me_has_ammo]
+            if(self.id == 1):
+                self.my_state = [self.old_state[2],me_has_ammo]
     '''
     finds action with maximum value out of q-value table
     '''
@@ -95,16 +154,16 @@ class Agent(object):
         max_action = -1
         #pos_x = self.current_state[0]
         #pos_y = self.current_state[1]
-        
         print("for max values",self.current_state)
-        for l in self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]]:
+        
+        for l in self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]][self.current_state[4]][self.current_state[5]]:
                 print(l)
         print("ACTIONMATRIX")
         
         #print("get max action",current_state," length",len(self.stateActionValues[current_state[0]][current_state[1]]))
         for action in range(0,6):
-            if(self.stateActionValues[current_state[0]][current_state[1]][current_state[2]][current_state[3]][action] > max_val):
-                max_val = self.stateActionValues[current_state[0]][current_state[1]][current_state[2]][current_state[3]][action]
+            if(self.stateActionValues[current_state[0]][current_state[1]][current_state[2]][current_state[3]][current_state[4]][current_state[5]][action] > max_val):
+                max_val = self.stateActionValues[current_state[0]][current_state[1]][current_state[2]][current_state[3]][current_state[4]][current_state[5]][action]
                 max_action = action
         #print("max at ",x,y,max_val)
         return([max_action,max_val])
@@ -120,14 +179,14 @@ class Agent(object):
         next_action = res[0]
         
         #print("qtable old_state",self.old_state)
-        future_reward = self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]][next_action] #check if last action 
-        old_value = self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.old_state[3]][self.action_taken]
+        future_reward = self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]][self.current_state[4]][self.current_state[5]][next_action] #check if last action 
+        old_value = self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.old_state[3]][self.old_state[4]][self.old_state[5]][self.action_taken]
         
         #print("future reward = ",future_reward)
         #print("old_value=",old_value)
         #print("reward = ",self.reward)
         
-        self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.old_state[3]][self.action_taken ] = old_value +  self.LR * (self.reward + self.DISCOUNT * future_reward - old_value  )
+        self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.old_state[3]][self.old_state[4]][self.old_state[5]][self.action_taken ] = old_value +  self.LR * (self.reward + self.DISCOUNT * future_reward - old_value  )
         '''
         for ac_number in range(0,len(self.stateActionValues)):
             if(ac_number == 0):
@@ -182,10 +241,10 @@ class Agent(object):
         else:
             self.score_cur = self.observation.score[0]
             self.reward += self.score_cur - self.score_old
-            print(self.reward," cur:",self.score_cur," old:", self.score_old)
+            #print(self.reward," cur:",self.score_cur," old:", self.score_old)
         
         
-        
+        #if transition complete, learn something!        
         if(transition_complete ):
             #print("transition complete")
             self.goal = self.loc
@@ -198,12 +257,13 @@ class Agent(object):
             cp2 = 0
             if(cps[1][2] < 1):
                 cp2 = 1
-            
-            has_ammo = 0
-            if(self.observation.ammo > 0):
-                has_ammo = 1
-            
-            self.current_state = [self.action_taken,cp1,cp2,has_ammo]
+                        
+            if(self.id == 0):
+                he = self.all_agents[1]
+                self.current_state = [self.my_state[0],self.my_state[1],he.my_state[0],he.my_state[1],cp1,cp2]
+            if(self.id == 1):
+                he = self.all_agents[0]
+                self.current_state = [he.my_state[0],he.my_state[1],self.my_state[0],self.my_state[1],cp1,cp2]
             
             '''
             self.reward = 0.0
@@ -221,11 +281,16 @@ class Agent(object):
             '''
             #do learning!
             self.update_q_table()
-            print("gave reward:",self.reward)
+            #print("gave reward:",self.reward)
             
             #look for next smart action
             res = self.get_max_action(self.current_state)
             self.action_taken = res[0]
+            
+            #but take random action instead for learning
+            #r = random.randint(0,5)
+            #print("random action:",r)
+            #self.action_taken = r
             self.goal = self.ACTIONS[self.action_taken]
             #reset reward
             self.reward = 0.0
@@ -392,9 +457,15 @@ class Agent(object):
             interrupt (CTRL+C) by the user. Use it to
             store any learned variables and write logs/reports.
         """
-        print("FINALIZING")
-        pickle.dump(self.stateActionValues, open("stateActionValues-reduced.p","wb"))
-        print("written pickle")
+        #first agents saves everything!
+        if(self.id == 0):
+            print("FINALIZING")
+            #print("vagina",self.all_agents[1].stateActionValues)
+            actionValues_total = [self.stateActionValues,self.all_agents[1].stateActionValues]
+            print(actionValues_total)
+        
+            pickle.dump(actionValues_total, open("stateActionValues-reduced.p","wb"))
+            print("written pickle")
         pass
         
 
