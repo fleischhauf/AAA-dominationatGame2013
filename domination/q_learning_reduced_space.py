@@ -43,7 +43,7 @@ class Agent(object):
         self.AMMO_1 = 2
         self.AMMO_2 = 3
         self.SPAWN_FR = 4
-        self.SPAWN_EN = 5
+        #self.SPAWN_EN = 5
         '''
         cps_UP: 232,56
         cps_DOWN: 264,216
@@ -52,12 +52,19 @@ class Agent(object):
         spawn_FR: 40,180
         spawn_EN: 440,90
         '''
+        
+        
         self.sa_vals = 0
         if(self.id == 0):
             self.sa_vals = pickle.load(blob)
             self.stateActionValues = self.sa_vals[0]
         if(self.id == 1):
-            self.stateActionValues = self.all_agents[0].sa_vals[1] 
+            self.stateActionValues = self.all_agents[0].sa_vals[1]
+        if(self.id == 2):
+            self.stateActionValues = self.all_agents[0].sa_vals[2]
+         
+        
+        
         '''       
         print(self.id)
         if(self.id == 0):
@@ -87,8 +94,8 @@ class Agent(object):
             print("agent 1 done!")
         '''
         #TODO: make team dependent !!!
-        self.ACTIONS = [(232,56),(264,216),(184,168),(312, 104),(40,180),(440,90)]
-        ###self.stateActionValues = [[[[[[[10.0 for move in range(0,6)] for cp2 in range(0,2)] for cp1 in range(0,2)]for hasAmmo2 in range(0,2)] for states2 in range(0,6)]for hasAmmo1 in range(0,2)]  for states1 in range(0,6)] 
+        self.ACTIONS = [(232,56),(264,216),(184,168),(312, 104),(40,180)]#,(440,90)]
+        ###self.stateActionValues = [[[[[[[[[100.0 for move in range(0,6)] for cp2 in range(0,2)] for cp1 in range(0,2)]for hasAmmo3 in range(0,2)] for states3 in range(0,6)]for hasAmmo2 in range(0,2)] for states2 in range(0,6)]for hasAmmo1 in range(0,2)]  for states1 in range(0,6)] 
         #self.stateActionValues = [[[[[10.0 for move in range(0,6)]for hasAmmo in range(0,2)] for cp2 in range(0,2)]for cp1 in range(0,2)]  for states in range(0,6)] 
         #[[[[[10.0 for move in range(0,6)]for hasAmmo in range(0,2)] for cp2 in range(0,2)]for cp1 in range(0,2)]  for states in range(0,6)] 
         #self.stateActionValues = [[[[9.0 for move_y in range(0,9)] for move_x in range(0,9)] for y in range(0,27)]for x in range(0,49)]
@@ -99,7 +106,7 @@ class Agent(object):
 
         
         self.action_taken = self.SPAWN_FR
-        self.old_state = [self.SPAWN_FR,0,self.SPAWN_FR,0,0,0] #assuming cp1 and 2 are not owned: 2, taken by blue : 1
+        self.old_state = [self.SPAWN_FR,0,self.SPAWN_FR,0,self.SPAWN_FR,0,0,0] #assuming cp1 and 2 are not owned: 2, taken by blue : 1
         self.current_state  = self.old_state
         self.my_state = [self.SPAWN_FR,0] #state, ammo
         self.first_run = True
@@ -110,7 +117,13 @@ class Agent(object):
         self.loc = self.ACTIONS[self.SPAWN_FR] 
         self.last_loc = self.loc
         #q learning variables:
-        self.LR = 0.5
+    
+        #if won last game DONT LEARN
+        self.LR = 0.8
+        #if(self.all_agents[0].sa_vals[3] == 0):
+        #    self.LR = 0.5
+        #else:
+        #    self.LR = 0
         self.DISCOUNT = 0.9
         
         
@@ -135,6 +148,7 @@ class Agent(object):
             
             
         transition_complete = self.check_transition()
+        
         me_has_ammo = 0
         if(self.observation.ammo > 0):
             me_has_ammo = 1
@@ -146,6 +160,8 @@ class Agent(object):
                 self.my_state = [self.old_state[0],me_has_ammo]
             if(self.id == 1):
                 self.my_state = [self.old_state[2],me_has_ammo]
+            if(self.id == 2):
+                self.my_state = [self.old_state[4],me_has_ammo]
     '''
     finds action with maximum value out of q-value table
     '''
@@ -154,16 +170,13 @@ class Agent(object):
         max_action = -1
         #pos_x = self.current_state[0]
         #pos_y = self.current_state[1]
-        print("for max values",self.current_state)
-        
-        for l in self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]][self.current_state[4]][self.current_state[5]]:
-                print(l)
-        print("ACTIONMATRIX")
+
+        #print("ACTIONMATRIX")
         
         #print("get max action",current_state," length",len(self.stateActionValues[current_state[0]][current_state[1]]))
-        for action in range(0,6):
-            if(self.stateActionValues[current_state[0]][current_state[1]][current_state[2]][current_state[3]][current_state[4]][current_state[5]][action] > max_val):
-                max_val = self.stateActionValues[current_state[0]][current_state[1]][current_state[2]][current_state[3]][current_state[4]][current_state[5]][action]
+        for action in range(0,5):
+            if(self.stateActionValues[current_state[0]][current_state[1]][current_state[2]][current_state[3]][current_state[4]][current_state[5]][current_state[6]][current_state[7]][action] > max_val):
+                max_val = self.stateActionValues[current_state[0]][current_state[1]][current_state[2]][current_state[3]][current_state[4]][current_state[5]][current_state[6]][current_state[7]][action]
                 max_action = action
         #print("max at ",x,y,max_val)
         return([max_action,max_val])
@@ -179,18 +192,44 @@ class Agent(object):
         next_action = res[0]
         
         #print("qtable old_state",self.old_state)
-        future_reward = self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]][self.current_state[4]][self.current_state[5]][next_action] #check if last action 
-        old_value = self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.old_state[3]][self.old_state[4]][self.old_state[5]][self.action_taken]
+        future_reward = self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]][self.current_state[4]][self.current_state[5]][self.current_state[6]][self.current_state[7]][next_action] #check if last action 
+        old_value = self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.old_state[3]][self.old_state[4]][self.old_state[5]][self.old_state[6]][self.old_state[7]][self.action_taken]
         
         #print("future reward = ",future_reward)
         #print("old_value=",old_value)
         #print("reward = ",self.reward)
         
-        self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.old_state[3]][self.old_state[4]][self.old_state[5]][self.action_taken ] = old_value +  self.LR * (self.reward + self.DISCOUNT * future_reward - old_value  )
+        self.stateActionValues[self.old_state[0]][self.old_state[1]][self.old_state[2]][self.old_state[3]][self.old_state[4]][self.old_state[5]][self.old_state[6]][self.old_state[7]][self.action_taken ] = old_value +  self.LR * (self.reward + self.DISCOUNT * future_reward - old_value  )
         '''
         for ac_number in range(0,len(self.stateActionValues)):
             if(ac_number == 0):
         '''
+        print("for max values for agent ",self.id," :",self.current_state)
+        
+        for l in range(0,len(self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]][self.current_state[4]][self.current_state[5]][self.current_state[6]][self.current_state[7]])):
+            '''
+            cps_UP: 232,56
+            cps_DOWN: 264,216
+            ammo_1: 184,168
+            ammo_2: 312, 104 (enemy)
+            spawn_FR: 40,180
+            spawn_EN: 440,90
+            '''    
+                
+            if(l == 0):
+                print("CPS_UP:",self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]][self.current_state[4]][self.current_state[5]][self.current_state[6]][self.current_state[7]][l])
+                
+            if(l == 1):
+                print("CPS_DO:",self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]][self.current_state[4]][self.current_state[5]][self.current_state[6]][self.current_state[7]][l])
+            if(l == 2):
+                print("AMMO_1:",self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]][self.current_state[4]][self.current_state[5]][self.current_state[6]][self.current_state[7]][l])
+            if(l == 3):
+                print("AMMO_2:",self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]][self.current_state[4]][self.current_state[5]][self.current_state[6]][self.current_state[7]][l])
+            if(l == 4):
+                print("SPAWNR:",self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]][self.current_state[4]][self.current_state[5]][self.current_state[6]][self.current_state[7]][l])
+            if(l == 5):
+                print("SPAWNO:",self.stateActionValues[self.current_state[0]][self.current_state[1]][self.current_state[2]][self.current_state[3]][self.current_state[4]][self.current_state[5]][self.current_state[6]][self.current_state[7]][l])
+        
         #self.CP_UP = 0
         #self.CP_DOWN = 1
         #self.AMMO_1 = 2
@@ -251,20 +290,25 @@ class Agent(object):
             #check control points:
             cps = self.observation.cps
             #not taken by blue
-            cp1 = 0
-            if(cps[0][2] < 1):
-                cp1 = 1
-            cp2 = 0
-            if(cps[1][2] < 1):
-                cp2 = 1
+            cp1 = cps[0][2]
+            #if(cps[0][2] < 1):
+            #    cp1 = 1
+            cp2 = cps[1][2]
+            #if(cps[1][2] < 1):
+            #    cp2 = 1
                         
             if(self.id == 0):
                 he = self.all_agents[1]
-                self.current_state = [self.my_state[0],self.my_state[1],he.my_state[0],he.my_state[1],cp1,cp2]
+                she = self.all_agents[2]
+                self.current_state = [self.my_state[0],self.my_state[1],he.my_state[0],he.my_state[1],she.my_state[0],she.my_state[1],cp1,cp2]
             if(self.id == 1):
                 he = self.all_agents[0]
-                self.current_state = [he.my_state[0],he.my_state[1],self.my_state[0],self.my_state[1],cp1,cp2]
-            
+                she = self.all_agents[2]
+                self.current_state = [he.my_state[0],he.my_state[1],self.my_state[0],self.my_state[1],she.my_state[0],she.my_state[1],cp1,cp2]
+            if(self.id == 2):
+                he = self.all_agents[0]
+                she = self.all_agents[1]
+                self.current_state = [he.my_state[0],he.my_state[1],she.my_state[0],she.my_state[1],self.my_state[0],self.my_state[1],cp1,cp2]
             '''
             self.reward = 0.0
             #check reward!
@@ -282,15 +326,19 @@ class Agent(object):
             #do learning!
             self.update_q_table()
             #print("gave reward:",self.reward)
-            
-            #look for next smart action
             res = self.get_max_action(self.current_state)
             self.action_taken = res[0]
+            
+            #r = random.randint(0,20)        
+            #if(r <= 5):
+            #    self.action_taken = r             
+            #look for next smart action
+
             
             #but take random action instead for learning
             #r = random.randint(0,5)
             #print("random action:",r)
-            #self.action_taken = r
+
             self.goal = self.ACTIONS[self.action_taken]
             #reset reward
             self.reward = 0.0
@@ -389,6 +437,8 @@ class Agent(object):
         self.old_state = self.current_state
         
         self.score_old = self.score_cur
+
+
         return(turn,speed,shoot)
     
             
@@ -461,10 +511,16 @@ class Agent(object):
         if(self.id == 0):
             print("FINALIZING")
             #print("vagina",self.all_agents[1].stateActionValues)
-            actionValues_total = [self.stateActionValues,self.all_agents[1].stateActionValues]
-            print(actionValues_total)
-        
+            won = 1
+            if(self.score_cur <= 50):
+                won = 0
+            actionValues_total = [self.stateActionValues,self.all_agents[1].stateActionValues,self.all_agents[2].stateActionValues,won]
+            #print(actionValues_total)
+
+            
             pickle.dump(actionValues_total, open("stateActionValues-reduced.p","wb"))
+            r = random.randint(0,5)
+            pickle.dump(actionValues_total, open("stateActionValues-reduced.p"+str(r),"wb"))
             print("written pickle")
         pass
         
