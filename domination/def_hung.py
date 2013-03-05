@@ -158,13 +158,13 @@ class Agent(object):
             x=0;
             for id in self.all_agents:
                 #top cp
-                path1=find_path(id.observation.loc, (216, 56), self.mesh, self.grid, self.settings.tilesize)
+                path1=find_path(id.observation.loc, (232,56), self.mesh, self.grid, self.settings.tilesize)
                 #bottom cp
-                path2=find_path(id.observation.loc, (248, 216), self.mesh, self.grid, self.settings.tilesize)
+                path2=find_path(id.observation.loc, (264,216), self.mesh, self.grid, self.settings.tilesize)
                 #left ammo
-                path3=find_path(id.observation.loc, (152,136), self.mesh, self.grid, self.settings.tilesize)
+                path3=find_path(id.observation.loc, (184,168), self.mesh, self.grid, self.settings.tilesize)
                 #right ammo
-                path4=find_path(id.observation.loc, (312,136), self.mesh, self.grid, self.settings.tilesize)
+                path4=find_path(id.observation.loc, (312, 104), self.mesh, self.grid, self.settings.tilesize)
 
                 self.costMatrix2 [x][0] = 0.1*self.get_path_length(id.observation.loc,path1)
                 self.costMatrix2 [x][1] = 0.1*self.get_path_length(id.observation.loc,path2)
@@ -184,13 +184,13 @@ class Agent(object):
                 total += value
                 #print '(%d, %d) -> %d' % (row, column, value)
                 if (column==0):
-                    self.all_agents[row].goal= (216, 56)
+                    self.all_agents[row].goal= (232,56)
                 elif (column==1):
-                    self.all_agents[row].goal= (248, 216)
+                    self.all_agents[row].goal= (264,216)
                 elif (column==2):
-                    self.all_agents[row].goal= (152,136)
+                    self.all_agents[row].goal= (184,168)
                 else:
-                    self.all_agents[row].goal= (312,136)
+                    self.all_agents[row].goal= (312, 104)
         #shoot = True
         #check if we dont own any cp (cps: (x,y,flag))
         elif ( obs.cps[1][2] != self.team and obs.cps[0][2] != self.team ):   
@@ -206,11 +206,11 @@ class Agent(object):
             x=0;
             for id in self.all_agents:
                 #top cp
-                path1=find_path(id.observation.loc, (216, 56), self.mesh, self.grid, self.settings.tilesize)
+                path1=find_path(id.observation.loc, (232,56), self.mesh, self.grid, self.settings.tilesize)
                 #bottom cp
-                path2=find_path(id.observation.loc, (248, 216), self.mesh, self.grid, self.settings.tilesize)
+                path2=find_path(id.observation.loc, (264,216), self.mesh, self.grid, self.settings.tilesize)
                 #left ammo
-                path3=find_path(id.observation.loc, (216, 56), self.mesh, self.grid, self.settings.tilesize)
+                path3=find_path(id.observation.loc, (184,168), self.mesh, self.grid, self.settings.tilesize)
                 #right ammo
                # path4=find_path(id.observation.loc, (312,136), self.mesh, self.grid, self.settings.tilesize)
 
@@ -232,11 +232,11 @@ class Agent(object):
                 total += value
                 #print '(%d, %d) -> %d' % (row, column, value)
                 if (column==0):
-                    self.all_agents[row].goal= (216, 56)
+                    self.all_agents[row].goal= (232,56)
                 elif (column==1):
-                    self.all_agents[row].goal= (248, 216)
+                    self.all_agents[row].goal= (264,216)
                 elif (column==2):
-                     self.all_agents[row].goal= (216, 56)
+                     self.all_agents[row].goal= (184,168)
 #                else:
 #                    self.all_agents[row].goal= (312,136)
                 #print 'goal : ', self.all_agents[row].goal
