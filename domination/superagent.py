@@ -75,13 +75,15 @@ class Agent(object):
         # Read the binary blob, we're not using it though
         if blob is not None:
             # Reset the file so other agents can read it.
-            blob.seek(0)
-            
-            #print "Agent %s received binary blob of %s" % (
-            #   self.callsign, type(pickle.loads(blob.read())))
-            
-            self.gamwinpol = pickle.loads(blob.read())
-
+            try:    
+                blob.seek(0)
+                #print "Agent %s received binary blob of %s" % (
+                #   self.callsign, type(pickle.loads(blob.read())))
+                self.gamwinpol = pickle.loads(blob.read())
+                print "Blob Read!"
+            except:
+                print "Blob read error: Make sure to have Read Access!"
+  
             if( self.gamwinpol == [] ):
                 self.gamwinpol = [0,0,0]
             self.policy = self.gamwinpol[2]
@@ -94,11 +96,10 @@ class Agent(object):
                     self.gamwinpol = [0,0,self.policy]
                     
             print ("policy:",self.policy)
-            print ("policyfromfile:",self.gamwinpol[2])
+            print ("policy from file:",self.gamwinpol[2])
             print ("wins:",self.gamwinpol[1])
             print("no_games: ",self.gamwinpol[0])
         
-          
 
 
 
@@ -1326,7 +1327,9 @@ class Agent(object):
             interrupt (CTRL+C) by the user. Use it to
             store any learned variables and write logs/reports.
         """
+        
         self.result = 0
+        
         if (self.id == 0):
             if (self.observation.score[self.team] >= 50):
                 self.result = 1
@@ -1337,9 +1340,12 @@ class Agent(object):
                 self.result = 0
             
             
-            
+        #try:    
             #newdata = self.policy, self.result
             #self.memory.append(newdata)
             #print "final:", self.memory
             pickle.dump(self.gamwinpol, open("tmemory.p","wb"))
+            print "Blob Written!"
+        #except:
+        #    print "Blob write error: Make sure to have Write Access!"
         pass
