@@ -51,34 +51,34 @@ deaths = 0
 thinktime = 0
 steps = 0
 steps_mov = [0,0,0,0,0,0,0,0,0,0]
-for i in range(0, 1000000):
+for i in range(1, 11):
     
     #red_init={'blob': open('stateActionValues.p','rb')}
-    if(i%20 == 0):
-        game = core.Game('domination/q_learning_reduced_space.py', 'domination/agent.py',red_init={'blob': open('stateActionValues-reduced.p','rb')},
-                     record=False, rendered=True,verbose=True, settings=settings, field=FI)
+    if(i%10000 == 0):
+        game = core.Game('domination/sillybot.py', 'domination/superagent.py',red_init={'blob': open('tmemory.p','rb')},
+                     record=False, rendered=True,verbose=False, settings=settings, field=FI)
     else:
-        game = core.Game('domination/q_learning_reduced_space.py', 'domination/sillybot.py',red_init={'blob': open('stateActionValues-reduced.p','rb')},
-                     record=False, rendered=False,verbose=False, settings=settings, field=FI)
+        game = core.Game('domination/sillybot.py', 'domination/superagent.py',red_init={'blob': open('tmemory.p','rb')},
+                     record=False, rendered=False,verbose=True, settings=settings, field=FI)
     game.run()
     #print game.stats
 
-    steps_mov.pop(0)
-    steps_mov.append(game.stats.steps)    
-    steps_total = 0
-    for j in steps_mov:
-        steps_total += j
-    steps_avrg = steps_total/len(steps_mov)
-    print "Game:", i, "| Score:", game.stats.score_red,"| steps:",game.stats.steps,"| avrg_steps:",steps_avrg
+    #steps_mov.pop(0)
+    #steps_mov.append(game.stats.steps)    
+    #teps_total = 0
+    #for j in steps_mov:
+    #    steps_total += j
+    #steps_avrg = steps_total/len(steps_mov)
+    print "Game:", i, "| Score:", game.stats.score_blue,"| steps:",game.stats.steps
     #if(game.stats.score_red > 90):
     #    break
-    #score = score + game.stats.score_blue
-    #ammo += game.stats.ammo_blue
-    #enemyammo += game.stats.ammo_red
-    #kills += game.stats.deaths_red
-    #deaths += game.stats.deaths_blue
-    #thinktime += game.stats.think_time_blue
-    #steps += game.stats.steps
+    score = score + game.stats.score_blue
+    ammo += game.stats.ammo_blue
+    enemyammo += game.stats.ammo_red
+    kills += game.stats.deaths_red
+    deaths += game.stats.deaths_blue
+    thinktime += game.stats.think_time_blue
+    steps += game.stats.steps
 print "Win Ratio:", score/i, "%"
 print "Average Kills:", kills/i
 print "Average Deaths:", deaths/i
