@@ -79,6 +79,7 @@ class Agent(object):
                 blob.seek(0)
                 #print "Agent %s received binary blob of %s" % (
                 #   self.callsign, type(pickle.loads(blob.read())))
+                self.blobpath = blob.name
                 self.gamwinpol = pickle.loads(blob.read())
                 print "Blob Read!"
             except:
@@ -1344,7 +1345,8 @@ class Agent(object):
             #newdata = self.policy, self.result
             #self.memory.append(newdata)
             #print "final:", self.memory
-            pickle.dump(self.gamwinpol, open("tmemory.p","wb"))
+            blobfile = open(self.blobpath, 'wb')
+            pickle.dump(self.gamwinpol, blobfile)
             print "Blob Written!"
         #except:
         #    print "Blob write error: Make sure to have Write Access!"
