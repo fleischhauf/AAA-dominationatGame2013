@@ -19,6 +19,25 @@ w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w
 w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w
 w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
 '''
+'''
+w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w
+w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w w w
+w _ _ _ _ _ _ _ _ _ _ _ _ _ C _ _ _ _ _ _ _ _ _ _ _ _ _ w _ w
+w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w w w w w _ w
+w _ _ _ _ _ _ _ w w w w w w w w w w w w w w w _ w _ _ _ _ _ w
+w _ _ _ w _ _ _ w _ _ _ _ _ _ _ _ _ _ a _ _ _ _ w _ w w w w w
+w R _ _ w _ _ _ w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w _ w _ _ B w
+w R _ _ w _ _ _ w _ _ _ _ w w w w w _ _ _ _ w w w _ w _ _ B w
+w R _ _ w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w _ _ _ w _ _ B w
+w _ _ _ w _ _ _ _ _ _ a _ _ _ _ _ _ _ _ _ _ w _ w w w w w _ w
+w _ w _ _ _ _ _ w w w w w w w w w w w w w w w _ w _ _ _ w _ w
+w _ w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w _ _ _ w _ w _ w _ w
+w _ w _ _ _ _ _ _ _ _ _ _ _ _ _ C _ _ _ w _ w _ w _ w _ w _ w
+w _ w w w w w w w w w w w w w w w w w w w _ w _ w _ w _ w _ w
+w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w _ _ _ w _ _ _ w
+w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+'''
 FIELD = """
 w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
 w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w
@@ -51,7 +70,7 @@ deaths = 0
 thinktime = 0
 steps = 0
 steps_mov = [0,0,0,0,0,0,0,0,0,0]
-for i in range(1, 11):
+for i in range(1, 101):
     
     #red_init={'blob': open('stateActionValues.p','rb')}
     if(i%10000 == 0):
