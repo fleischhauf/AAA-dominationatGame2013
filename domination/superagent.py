@@ -73,13 +73,16 @@ class Agent(object):
             #print "count:",count
         '''
         # Read the binary blob, we're not using it though
+	if(self.id == 0 and blob is None):
+            self.blobpath = blob.name
         if blob is not None:
+
             # Reset the file so other agents can read it.
             try:    
                 blob.seek(0)
                 #print "Agent %s received binary blob of %s" % (
                 #   self.callsign, type(pickle.loads(blob.read())))
-                self.blobpath = blob.name
+		self.blobpath = blob.name
                 self.gamwinpol = pickle.loads(blob.read())
                 print "Blob Read!"
             except:
@@ -96,10 +99,10 @@ class Agent(object):
                 else:
                     self.gamwinpol = [0,0,self.policy]
                     
-            print ("policy:",self.policy)
-            print ("policy from file:",self.gamwinpol[2])
-            print ("wins:",self.gamwinpol[1])
-            print("no_games: ",self.gamwinpol[0])
+            #print ("policy:",self.policy)
+            #print ("policy from file:",self.gamwinpol[2])
+            #print ("wins:",self.gamwinpol[1])
+            #print("no_games: ",self.gamwinpol[0])
         
 
 
@@ -389,7 +392,7 @@ class Agent(object):
             print observation
     def obs_hung(self,observation):
         self.observation = observation
-        print observation
+        #print observation
         self.selected = observation.selected
         
         if observation.selected:
@@ -417,7 +420,7 @@ class Agent(object):
         turn = 0
         speed = 0
         shoot = 0
-        print("POLICY",self.policy)
+        #print("POLICY",self.policy)
         if(self.policy == 0): #defensive_agent
             turn,speed,shoot = self.action_defensive( )
         elif(self.policy == 1): #def_hung

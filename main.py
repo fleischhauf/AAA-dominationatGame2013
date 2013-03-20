@@ -70,14 +70,15 @@ deaths = 0
 thinktime = 0
 steps = 0
 steps_mov = [0,0,0,0,0,0,0,0,0,0]
-for i in range(1, 101):
+for i in range(1, 2):
     
     #red_init={'blob': open('stateActionValues.p','rb')}
+    print("pregame:",open('tmemory.p','rb'))
     if(i%10000 == 0):
-        game = core.Game('domination/sillybot.py', 'domination/superagent.py',red_init={'blob': open('tmemory.p','rb')},
+        game = core.Game('domination/agent.py', 'domination/superagent.py',blue_init={'blob': open('tmemory.p','rb')},
                      record=False, rendered=True,verbose=False, settings=settings, field=FI)
     else:
-        game = core.Game('domination/sillybot.py', 'domination/superagent.py',red_init={'blob': open('tmemory.p','rb')},
+        game = core.Game('domination/agent.py', 'domination/superagent.py',blue_init={'blob': open('tmemory.p','rb')},
                      record=False, rendered=False,verbose=True, settings=settings, field=FI)
     game.run()
     #print game.stats
