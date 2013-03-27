@@ -55,7 +55,7 @@ steps = 0
 steps_mov = [0,0,0,0,0,0,0,0,0,0]
 f.write("game,score,steps,steps_avrg,kills,deaths,ammo,enemy_ammo,think_time\n")
 
-for i in range(0, 10):
+for i in range(0, 1000):
     
     #red_init={'blob': open('stateActionValues.p','rb')}
     old_time = time.time()
