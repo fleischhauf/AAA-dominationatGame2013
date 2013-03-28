@@ -85,7 +85,7 @@ for i in range(0, 1000):
     thinktime = game.stats.think_time_blue
     steps = game.stats.steps
     
-    print "Game:", i, "| Score:", game.stats.score_red,"| steps:",game.stats.steps,"| avrg_steps:",steps_avrg
+    print "Game:", i, "| Score:", game.stats.score_blue,"| steps:",game.stats.steps,"| avrg_steps:",steps_avrg
     f.write(str(i)+","+str(score)+","+str(steps)+","+str(steps_avrg)+","+str(kills)+","+str(deaths)+","+str(ammo)+","+str(enemyammo)+","+str(thinktime)+"\n")
     #if(game.stats.score_red > 90):
     #    break
